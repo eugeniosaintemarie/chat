@@ -6,7 +6,7 @@ import { api } from './backend/convex/_generated/api';
 import { env } from '$env/dynamic/public';
 import { env as privateEnv } from '$env/dynamic/private';
 
-const client = new ConvexHttpClient(env.PUBLIC_CONVEX_URL!);
+const client = new ConvexHttpClient(env.PUBLIC_CONVEX_URL!.replace(/\/+$/, ''));
 
 export const auth = betterAuth({
 	baseURL: privateEnv.BETTER_AUTH_URL,
