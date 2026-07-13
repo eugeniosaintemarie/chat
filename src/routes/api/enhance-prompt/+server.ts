@@ -7,9 +7,8 @@ import { ConvexHttpClient } from 'convex/browser';
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { api } from '$lib/backend/convex/_generated/api';
 import { parseMessageForRules } from '$lib/utils/rules';
-import { OPENCODE_GO_BASE_URL } from '$lib/backend/models/opencode-go';
+import { resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
 
-const OPENAI_BASE_URL = env.OPENAI_BASE_URL || OPENCODE_GO_BASE_URL;
 const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
 const ENHANCE_MODEL = 'minimax-m2.5';
 
@@ -72,7 +71,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	);
 
 	const openai = new OpenAI({
-		baseURL: OPENAI_BASE_URL,
+		baseURL: resolveOpenCodeBaseUrl(ENHANCE_MODEL),
 		apiKey: API_KEY,
 	});
 

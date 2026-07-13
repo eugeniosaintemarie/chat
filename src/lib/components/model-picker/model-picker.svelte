@@ -2,6 +2,7 @@
 	import { api } from '$lib/backend/convex/_generated/api';
 	import type { Id } from '$lib/backend/convex/_generated/dataModel';
 	import { isPinned } from '$lib/backend/convex/user_enabled_models';
+	import { isFreeModel } from '$lib/backend/models/opencode-go';
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
@@ -59,8 +60,9 @@
 		if (id.includes('glm') || id.includes('zhipu')) return 'z.ai';
 		if (id.includes('kimi') || id.includes('moonshot')) return 'moonshot.ai';
 		if (id.includes('mimo') || id.includes('xiaomi')) return 'mi.com';
+		if (id.includes('nemotron') || id.includes('nvidia')) return 'nvidia.com';
+		if (id.includes('north') || id.includes('command') || id.includes('cohere')) return 'cohere.com';
 		if (id.includes('phi') || id.includes('microsoft')) return 'microsoft.com';
-		if (id.includes('command') || id.includes('cohere')) return 'cohere.com';
 		if (id.includes('gemma')) return 'google.com';
 		const provider = modelId.split('/')[0]?.toLowerCase();
 		if (provider && provider.includes('.')) return provider;
@@ -106,6 +108,16 @@
 			return displayName(a.model_id).localeCompare(displayName(b.model_id));
 		})
 	);
+
+	const goModels = $derived(sortedModels.filter((m) => !isFreeModel(m.model_id)));
+	const zenModels = $derived(sortedModels.filter((m) => isFreeModel(m.model_id)));
+
+	let goCollapsed = $state(false);
+	let zenCollapsed = $state(true);
+
+	const searching = $derived(search.trim() !== '');
+	const goOpen = $derived(!goCollapsed || searching);
+	const zenOpen = $derived(!zenCollapsed || searching);
 
 	const currentModel = $derived(enabledArr.find((m) => m.model_id === settings.modelId));
 
@@ -177,80 +189,118 @@
 				{#if sortedModels.length === 0}
 					<p class="text-muted-foreground px-3 py-6 text-center text-sm">No models found</p>
 				{:else}
-					{#each sortedModels as model (model._id)}
-						{@const meta = catalogById.get(model.model_id)}
-						{@const hasImages = meta ? supportsImages(meta) : false}
-						{@const hasReasoning = meta ? supportsReasoning(meta) : false}
-						{@const disabled = onlyImageModels && !hasImages}
-						{@const selected = model.model_id === settings.modelId}
-						{@const pinned = isPinned(model)}
-
-						<div
-							class={cn(
-								'group flex h-9 items-center gap-2 rounded-md px-2 text-sm transition-colors',
-								'hover:bg-accent/50',
-								selected && 'bg-accent/60',
-								disabled && 'pointer-events-none opacity-40'
-							)}
+					{#if goModels.length > 0}
+						<button
+							type="button"
+							class="text-muted-foreground hover:text-foreground flex w-full items-center gap-1 px-2 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors"
+							onclick={() => (goCollapsed = !goCollapsed)}
 						>
-							<button
-								type="button"
-								class="flex min-w-0 flex-1 items-center gap-2 text-left"
-								onclick={() => modelSelected(model.model_id)}
-								{disabled}
-							>
-								{#if faviconUrl(model.model_id)}
-									<img
-										src={faviconUrl(model.model_id)}
-										alt=""
-										class="size-4 shrink-0 rounded-sm"
-										loading="lazy"
-									/>
-								{/if}
-								<span class="truncate">{displayName(model.model_id)}</span>
-							</button>
+							<ChevronDownIcon
+								class={cn('size-3.5 transition-transform', !goOpen && '-rotate-90')}
+							/>
+							Go
+							<span class="text-muted-foreground/60 ml-auto normal-case">{goModels.length}</span>
+						</button>
+						{#if goOpen}
+							{#each goModels as model (model._id)}
+								{@render modelRow(model)}
+							{/each}
+						{/if}
+					{/if}
 
-							<div class="flex shrink-0 items-center gap-1.5">
-								{#if hasImages}
-									<Tooltip>
-										{#snippet trigger(tooltip)}
-											<span {...tooltip.trigger} class="text-violet-400">
-												<EyeIcon class="size-3.5" />
-											</span>
-										{/snippet}
-										Supports image analysis
-									</Tooltip>
-								{/if}
-								{#if hasReasoning}
-									<Tooltip>
-										{#snippet trigger(tooltip)}
-											<span {...tooltip.trigger} class="text-green-400">
-												<BrainIcon class="size-3.5" />
-											</span>
-										{/snippet}
-										Supports reasoning
-									</Tooltip>
-								{/if}
-
-								<button
-									type="button"
-									class={cn(
-										'text-muted-foreground hover:text-foreground rounded p-0.5 transition-colors',
-										pinned ? 'text-yellow-400 hover:text-yellow-400' : 'opacity-0 group-hover:opacity-100'
-									)}
-									onclick={(e) => {
-										e.stopPropagation();
-										togglePin(model._id);
-									}}
-									aria-label={pinned ? 'Remove from favorites' : 'Add to favorites'}
-								>
-									<StarIcon class={cn('size-3.5', pinned && 'fill-current')} />
-								</button>
-							</div>
-						</div>
-					{/each}
+					{#if zenModels.length > 0}
+						<button
+							type="button"
+							class="text-muted-foreground hover:text-foreground mt-1 flex w-full items-center gap-1 px-2 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors"
+							onclick={() => (zenCollapsed = !zenCollapsed)}
+						>
+							<ChevronDownIcon
+								class={cn('size-3.5 transition-transform', !zenOpen && '-rotate-90')}
+							/>
+							Zen (free&stable)
+							<span class="text-muted-foreground/60 ml-auto normal-case">{zenModels.length}</span>
+						</button>
+						{#if zenOpen}
+							{#each zenModels as model (model._id)}
+								{@render modelRow(model)}
+							{/each}
+						{/if}
+					{/if}
 				{/if}
 			</div>
 		</Popover.Content>
 	{/if}
 </Popover.Root>
+
+{#snippet modelRow(model: (typeof enabledArr)[number])}
+	{@const meta = catalogById.get(model.model_id)}
+	{@const hasImages = meta ? supportsImages(meta) : false}
+	{@const hasReasoning = meta ? supportsReasoning(meta) : false}
+	{@const disabled = onlyImageModels && !hasImages}
+	{@const selected = model.model_id === settings.modelId}
+	{@const pinned = isPinned(model)}
+
+	<div
+		class={cn(
+			'group flex h-9 items-center gap-2 rounded-md px-2 text-sm transition-colors',
+			'hover:bg-accent/50',
+			selected && 'bg-accent/60',
+			disabled && 'pointer-events-none opacity-40'
+		)}
+	>
+		<button
+			type="button"
+			class="flex min-w-0 flex-1 items-center gap-2 text-left"
+			onclick={() => modelSelected(model.model_id)}
+			{disabled}
+		>
+			{#if faviconUrl(model.model_id)}
+				<img
+					src={faviconUrl(model.model_id)}
+					alt=""
+					class="size-4 shrink-0 rounded-sm"
+					loading="lazy"
+				/>
+			{/if}
+			<span class="truncate">{displayName(model.model_id)}</span>
+		</button>
+
+		<div class="flex shrink-0 items-center gap-1.5">
+			{#if hasImages}
+				<Tooltip>
+					{#snippet trigger(tooltip)}
+						<span {...tooltip.trigger} class="text-violet-400">
+							<EyeIcon class="size-3.5" />
+						</span>
+					{/snippet}
+					Supports image analysis
+				</Tooltip>
+			{/if}
+			{#if hasReasoning}
+				<Tooltip>
+					{#snippet trigger(tooltip)}
+						<span {...tooltip.trigger} class="text-green-400">
+							<BrainIcon class="size-3.5" />
+						</span>
+					{/snippet}
+					Supports reasoning
+				</Tooltip>
+			{/if}
+
+			<button
+				type="button"
+				class={cn(
+					'text-muted-foreground hover:text-foreground rounded p-0.5 transition-colors',
+					pinned ? 'text-yellow-400 hover:text-yellow-400' : 'opacity-0 group-hover:opacity-100'
+				)}
+				onclick={(e) => {
+					e.stopPropagation();
+					togglePin(model._id);
+				}}
+				aria-label={pinned ? 'Remove from favorites' : 'Add to favorites'}
+			>
+				<StarIcon class={cn('size-3.5', pinned && 'fill-current')} />
+			</button>
+		</div>
+	</div>
+{/snippet}

@@ -2,10 +2,29 @@ import { ResultAsync } from 'neverthrow';
 import type { OpenRouterModel } from './open-router';
 
 const MODELS_DEV_URL = 'https://models.dev/api.json';
-const PROVIDER_ID = 'opencode-go';
+const GO_PROVIDER_ID = 'opencode-go';
+const ZEN_PROVIDER_ID = 'opencode';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 export const OPENCODE_GO_BASE_URL = 'https://opencode.ai/zen/go/v1';
+export const OPENCODE_ZEN_BASE_URL = 'https://opencode.ai/zen/v1';
+
+// Stable/documented free models from OpenCode Zen (https://opencode.ai/docs/zen)
+const ZEN_FREE_MODEL_IDS = [
+	'deepseek-v4-flash-free',
+	'mimo-v2.5-free',
+	'north-mini-code-free',
+	'nemotron-3-ultra-free',
+	'hy3-free',
+];
+
+export function isFreeModel(modelId: string): boolean {
+	return modelId.endsWith('-free');
+}
+
+export function resolveOpenCodeBaseUrl(modelId: string): string {
+	return isFreeModel(modelId) ? OPENCODE_ZEN_BASE_URL : OPENCODE_GO_BASE_URL;
+}
 
 interface ModelsDevModel {
 	id: string;
@@ -68,8 +87,14 @@ export function getOpenCodeGoModels() {
 			const res = await fetch(MODELS_DEV_URL);
 			const data = (await res.json()) as Record<string, { models?: Record<string, ModelsDevModel> }>;
 
-			const provider = data[PROVIDER_ID];
-			const models = Object.values(provider?.models ?? {}).map(mapModel);
+			const goModels = Object.values(data[GO_PROVIDER_ID]?.models ?? {}).map(mapModel);
+
+			const zenProviderModels = data[ZEN_PROVIDER_ID]?.models ?? {};
+			const zenFreeModels = ZEN_FREE_MODEL_IDS.filter((id) => zenProviderModels[id]).map((id) =>
+				mapModel(zenProviderModels[id]!)
+			);
+
+			const models = [...goModels, ...zenFreeModels];
 
 			cache = { at: Date.now(), models };
 

@@ -1,9 +1,8 @@
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { env } from '$env/dynamic/private';
-import { OPENCODE_GO_BASE_URL } from '$lib/backend/models/opencode-go';
+import { resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
 import { api } from '$lib/backend/convex/_generated/api';
 
-const OPENAI_BASE_URL = env.OPENAI_BASE_URL || OPENCODE_GO_BASE_URL;
 const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
 const TITLE_MODEL = 'minimax-m2.5';
 import type { Doc, Id } from '$lib/backend/convex/_generated/dataModel';
@@ -110,7 +109,7 @@ async function generateConversationTitle({
 	}
 
 	const openai = new OpenAI({
-		baseURL: OPENAI_BASE_URL,
+		baseURL: resolveOpenCodeBaseUrl(TITLE_MODEL),
 		apiKey: actualKey,
 	});
 
@@ -354,7 +353,7 @@ async function generateAIResponse({
 	log(`Background: ${attachedRules.length} rules attached`, startTime);
 
 	const openai = new OpenAI({
-		baseURL: OPENAI_BASE_URL,
+		baseURL: resolveOpenCodeBaseUrl(modelId),
 		apiKey: actualKey,
 	});
 
