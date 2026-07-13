@@ -62,6 +62,7 @@
 		if (id.includes('mimo') || id.includes('xiaomi')) return 'mi.com';
 		if (id.includes('nemotron') || id.includes('nvidia')) return 'nvidia.com';
 		if (id.includes('north') || id.includes('command') || id.includes('cohere')) return 'cohere.com';
+		if (id.includes('hy3') || id.includes('hunyuan')) return 'tencent.com';
 		if (id.includes('phi') || id.includes('microsoft')) return 'microsoft.com';
 		if (id.includes('gemma')) return 'google.com';
 		const provider = modelId.split('/')[0]?.toLowerCase();
@@ -217,7 +218,7 @@
 							<ChevronDownIcon
 								class={cn('size-3.5 transition-transform', !zenOpen && '-rotate-90')}
 							/>
-							Zen (free&stable)
+							Zen <span class="normal-case">(free&stable)</span>
 							<span class="text-muted-foreground/60 ml-auto normal-case">{zenModels.length}</span>
 						</button>
 						{#if zenOpen}
