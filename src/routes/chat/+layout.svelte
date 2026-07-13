@@ -55,9 +55,20 @@
 	let abortController = $state<AbortController | null>(null);
 
 	$effect(() => {
+		const token = session.current?.session.token;
+		if (!token) return;
+
 		client.mutation(api.user_enabled_models.enable_initial, {
-			session_token: session.current?.session.token ?? '',
+			session_token: token,
 		});
+
+		const catalog = (page.data.models?.[Provider.OpenRouter] ?? []) as Array<{ id: string }>;
+		if (catalog.length > 0) {
+			client.mutation(api.user_enabled_models.sync_all, {
+				session_token: token,
+				model_ids: catalog.map((m) => m.id),
+			});
+		}
 	});
 
 	const currentConversationQuery = useCachedQuery(api.conversations.getById, () => ({

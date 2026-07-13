@@ -141,6 +141,42 @@ export function isPinned(model: Doc<'user_enabled_models'>) {
 	return model.pinned === null || model.pinned;
 }
 
+export const sync_all = mutation({
+	args: {
+		session_token: v.string(),
+		model_ids: v.array(v.string()),
+	},
+	handler: async (ctx, args) => {
+		const session = await ctx.runQuery(internal.betterAuth.getSession, {
+			sessionToken: args.session_token,
+		});
+
+		if (!session) {
+			throw new Error('Unauthorized');
+		}
+
+		const existing = await ctx.db
+			.query('user_enabled_models')
+			.withIndex('by_user', (q) => q.eq('user_id', session.userId))
+			.collect();
+
+		const existingIds = new Set(existing.map((m) => m.model_id));
+
+		const toInsert = args.model_ids.filter((id) => !existingIds.has(id));
+
+		await Promise.all(
+			toInsert.map((model_id) =>
+				ctx.db.insert('user_enabled_models', {
+					user_id: session.userId,
+					provider: Provider.OpenRouter,
+					model_id,
+					pinned: false,
+				})
+			)
+		);
+	},
+});
+
 export const enable_initial = mutation({
 	args: {
 		session_token: v.string(),
