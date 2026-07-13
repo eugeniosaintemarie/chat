@@ -9,6 +9,7 @@ import { env as privateEnv } from '$env/dynamic/private';
 const client = new ConvexHttpClient(env.PUBLIC_CONVEX_URL!);
 
 export const auth = betterAuth({
+	baseURL: privateEnv.BETTER_AUTH_URL,
 	secret: privateEnv.BETTER_AUTH_SECRET!,
 	database: convexAdapter(client),
 	socialProviders: {
