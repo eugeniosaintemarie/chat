@@ -12,10 +12,6 @@ export const auth = betterAuth({
 	secret: privateEnv.BETTER_AUTH_SECRET!,
 	database: convexAdapter(client),
 	socialProviders: {
-		google: {
-			clientId: privateEnv.GOOGLE_CLIENT_ID!,
-			clientSecret: privateEnv.GOOGLE_CLIENT_SECRET!,
-		},
 		github: {
 			clientId: privateEnv.GITHUB_CLIENT_ID!,
 			clientSecret: privateEnv.GITHUB_CLIENT_SECRET!,

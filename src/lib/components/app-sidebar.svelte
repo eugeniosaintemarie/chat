@@ -134,7 +134,7 @@
 				Toggle Sidebar ({cmdOrCtrl} + B)
 			</Tooltip>
 		</div>
-		<span class="text-center font-serif text-xl font-semibold">thom.chat</span>
+		<span class="text-center font-serif text-xl font-semibold">chat</span>
 		<div class="size-9"></div>
 	</div>
 	<div class="mt-1 flex w-full flex-col gap-2 px-2">

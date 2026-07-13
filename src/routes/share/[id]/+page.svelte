@@ -31,7 +31,7 @@
 
 <svelte:head>
 	<title>{conversationQuery.data?.title || 'Shared Chat'} | Shared Chat</title>
-	<meta name="description" content="A shared conversation from thom.chat" />
+	<meta name="description" content="A shared conversation from chat" />
 </svelte:head>
 
 <div class="fill-device-height">
@@ -45,7 +45,7 @@
 					href="/"
 					class="text-foreground hover:text-foreground/80 flex items-center gap-2 transition-colors"
 				>
-					<span class="font-serif font-semibold">thom.chat</span>
+					<span class="font-serif font-semibold">chat</span>
 				</a>
 				<div class="text-muted-foreground text-sm">Shared conversation</div>
 			</div>

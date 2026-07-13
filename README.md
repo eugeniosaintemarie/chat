@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="static/favicon.png" alt="thom.chat" width="180" height="180">
-  <h1>thom.chat</h1>
+  <img src="static/favicon.png" alt="chat" width="180" height="180">
+  <h1>chat</h1>
   <p><em>Open-source self-hostable T3 Chat.</em></p>
 
   <p>
@@ -22,11 +22,11 @@
 
 ## ✨ About
 
-**thom.chat** is an open-source alternative/clone to [T3 Chat](https://t3.chat/), built for [Theo's cloneathon](https://x.com/theo/status/1931515264497254402).
+**chat** is an open-source alternative/clone to [T3 Chat](https://t3.chat/), built for [Theo's cloneathon](https://x.com/theo/status/1931515264497254402).
 
 It is self-hostable, by self-hosting your own app and [https://www.convex.dev/](Convex) instance.
 
-While thom.chat is a clone, the featureset is not identical to T3 Chat.
+While chat is a clone, the featureset is not identical to T3 Chat.
 
 ## 🎯 Key Features
 
@@ -166,7 +166,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
   <p>Made with ❤️ by <a href="https://github.com/tglide">Thomas G. Lopes</a> and <a href="https://github.com/ieedan">Aidan Blesar</a></p>
   <p>
-    <a href="https://thom.chat">🌐 Live Demo</a> •
+    <a href="https://chat">🌐 Live Demo</a> •
     <a href="#-quick-start">📖 Documentation</a> •
     <a href="https://github.com/yourusername/thom-chat/issues">🐛 Report Bug</a> •
     <a href="https://github.com/yourusername/thom-chat/issues">💡 Request Feature</a>

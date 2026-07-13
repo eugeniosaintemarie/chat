@@ -72,7 +72,7 @@
 </script>
 
 <svelte:head>
-	<title>{conversation.data?.title} | thom.chat</title>
+	<title>{conversation.data?.title} | chat</title>
 </svelte:head>
 
 <div class="flex h-full flex-1 flex-col py-4 pt-6">

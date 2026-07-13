@@ -72,7 +72,7 @@
 </script>
 
 <svelte:head>
-	<title>New Chat | thom.chat</title>
+	<title>New Chat | chat</title>
 </svelte:head>
 
 <div class="flex h-svh flex-col items-center justify-center">

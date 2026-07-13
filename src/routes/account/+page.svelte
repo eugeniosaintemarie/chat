@@ -31,7 +31,7 @@
 </script>
 
 <svelte:head>
-	<title>Account | thom.chat</title>
+	<title>Account | chat</title>
 </svelte:head>
 
 <h1 class="text-2xl font-bold">Account Settings</h1>
