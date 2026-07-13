@@ -11,7 +11,6 @@
 	import { ShareButton } from '$lib/components/ui/share-button';
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
-	import { cmdOrCtrl } from '$lib/hooks/is-mac.svelte.js';
 	import { TextareaAutosize } from '$lib/spells/textarea-autosize.svelte.js';
 	import { models } from '$lib/state/models.svelte';
 	import { usePrompt } from '$lib/state/prompt.svelte.js';
@@ -38,7 +37,6 @@
 	import { callGenerateMessage } from '../api/generate-message/call.js';
 	import { ModelPicker } from '$lib/components/model-picker';
 	import SearchModal from './search-modal.svelte';
-	import { shortcut } from '$lib/actions/shortcut.svelte.js';
 	import { mergeAttrs } from 'melt';
 	import { callEnhancePrompt } from '../api/enhance-prompt/call.js';
 	import ShinyText from '$lib/components/animations/shiny-text.svelte';
@@ -448,10 +446,6 @@
 	/>
 </svelte:head>
 
-<svelte:window
-	use:shortcut={[{ ctrl: true, key: 'd', callback: () => scrollState.scrollToBottom() }]}
-/>
-
 <Sidebar.Root
 	bind:open={sidebarOpen}
 	class="fill-device-height overflow-clip"
@@ -477,7 +471,7 @@
 							<PanelLeftIcon />
 						</Sidebar.Trigger>
 					{/snippet}
-					Toggle Sidebar ({cmdOrCtrl} + B)
+					Toggle Sidebar
 				</Tooltip>
 			</div>
 		{/if}
@@ -504,7 +498,7 @@
 						<span class="sr-only">Search</span>
 					</Button>
 				{/snippet}
-				Search ({cmdOrCtrl} + K)
+				Search
 			</Tooltip>
 			<LightSwitch variant="ghost" class="size-8" />
 		</div>
@@ -536,7 +530,7 @@
 							<ChevronDownIcon class="inline" />
 						</Button>
 					{/snippet}
-					{cmdOrCtrl} + D
+					Scroll to bottom
 				</Tooltip>
 			</div>
 
@@ -694,7 +688,7 @@
 												type={isGenerating ? 'button' : 'submit'}
 												onclick={isGenerating ? stopGeneration : undefined}
 												disabled={isGenerating ? false : !message.current.trim()}
-												class="border-reflect button-reflect hover:bg-primary/90 active:bg-primary text-foreground dark:text-primary-foreground relative h-9 w-9 rounded-lg p-2 font-semibold shadow transition disabled:cursor-not-allowed disabled:opacity-50"
+												class="border-reflect button-reflect bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 relative h-9 w-9 rounded-lg p-2 font-semibold shadow transition disabled:cursor-not-allowed disabled:opacity-50"
 												{...tooltip.trigger}
 											>
 												{#if isGenerating}

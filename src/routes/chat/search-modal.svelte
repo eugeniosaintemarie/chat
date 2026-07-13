@@ -7,7 +7,6 @@
 	import { Debounced } from 'runed';
 	import { tick } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { shortcut } from '$lib/actions/shortcut.svelte';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -76,8 +75,6 @@
 		}
 	}
 </script>
-
-<svelte:window use:shortcut={{ ctrl: true, key: 'k', callback: () => (open = true) }} />
 
 <Modal bind:open>
 	<div class="space-y-4">

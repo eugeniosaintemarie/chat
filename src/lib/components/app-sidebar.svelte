@@ -7,7 +7,6 @@
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import { useSidebarControls } from '$lib/components/ui/sidebar';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
-	import { cmdOrCtrl } from '$lib/hooks/is-mac.svelte';
 	import { session } from '$lib/state/session.svelte';
 	import { cn } from '$lib/utils/utils.js';
 	import { useConvexClient } from 'convex-svelte';
@@ -125,7 +124,7 @@
 						<PanelLeftIcon />
 					</Sidebar.Trigger>
 				{/snippet}
-				Toggle Sidebar ({cmdOrCtrl} + B)
+				Toggle Sidebar
 			</Tooltip>
 		</div>
 		<span class="text-center font-serif text-xl font-semibold">chat</span>
@@ -144,7 +143,7 @@
 					New Chat
 				</a>
 			{/snippet}
-			New Chat ({cmdOrCtrl} + Shift + O)
+			New Chat
 		</Tooltip>
 		<!--
 		<Tooltip>
@@ -159,7 +158,7 @@
 					<span class="text-muted-foreground/50">Search conversations...</span>
 				</button>
 			{/snippet}
-			Search ({cmdOrCtrl} + K)
+			Search
 		</Tooltip>
 		-->
 	</div>

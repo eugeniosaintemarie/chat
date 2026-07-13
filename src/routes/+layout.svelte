@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { PUBLIC_CONVEX_URL } from '$env/static/public';
-	import { shortcut } from '$lib/actions/shortcut.svelte';
 	import GlobalModal from '$lib/components/ui/modal/global-modal.svelte';
 	import { models } from '$lib/state/models.svelte';
 	import { setupConvex } from 'convex-svelte';
@@ -51,10 +49,6 @@
 			},
 		],
 	}}
-/>
-
-<svelte:window
-	use:shortcut={{ ctrl: true, shift: true, key: 'o', callback: () => goto('/chat') }}
 />
 
 <ModeWatcher />

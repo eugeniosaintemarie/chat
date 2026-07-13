@@ -2,7 +2,6 @@
 	import { cn } from '$lib/utils/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { useSidebar } from './sidebar.svelte.js';
-	import { shortcut } from '$lib/actions/shortcut.svelte.js';
 
 	let {
 		open = $bindable(false),
@@ -16,8 +15,6 @@
 		open = sidebar.showSidebar;
 	});
 </script>
-
-<svelte:window use:shortcut={{ key: 'b', ctrl: true, callback: sidebar.toggle }} />
 
 <div
 	{...rest}
