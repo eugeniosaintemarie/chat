@@ -3,8 +3,6 @@
 	import type { Id } from '$lib/backend/convex/_generated/dataModel';
 	import { isPinned } from '$lib/backend/convex/user_enabled_models';
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte';
-	import Cohere from '$lib/components/icons/cohere.svelte';
-	import Deepseek from '$lib/components/icons/deepseek.svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
 	import { isFirefox } from '$lib/hooks/is-firefox.svelte';
@@ -19,22 +17,11 @@
 	import { cn } from '$lib/utils/utils';
 	import { useConvexClient } from 'convex-svelte';
 	import { ResultAsync } from 'neverthrow';
-	import { type Component } from 'svelte';
-	import LogosClaudeIcon from '~icons/logos/claude-icon';
-	import LogosMistralAiIcon from '~icons/logos/mistral-ai-icon';
 	import BrainIcon from '~icons/lucide/brain';
 	import ChevronDownIcon from '~icons/lucide/chevron-down';
-	import CpuIcon from '~icons/lucide/cpu';
 	import EyeIcon from '~icons/lucide/eye';
 	import SearchIcon from '~icons/lucide/search';
 	import StarIcon from '~icons/lucide/star';
-	import ZapIcon from '~icons/lucide/zap';
-	import MaterialIconThemeGeminiAi from '~icons/material-icon-theme/gemini-ai';
-	import GoogleIcon from '~icons/simple-icons/google';
-	import MetaIcon from '~icons/simple-icons/meta';
-	import MicrosoftIcon from '~icons/simple-icons/microsoft';
-	import OpenaiIcon from '~icons/simple-icons/openai';
-	import XIcon from '~icons/simple-icons/x';
 
 	type Props = {
 		class?: string;
@@ -55,42 +42,35 @@
 
 	modelsState.init();
 
-	const companyIcons: Record<string, Component> = {
-		openai: OpenaiIcon,
-		anthropic: LogosClaudeIcon,
-		google: GoogleIcon,
-		meta: MetaIcon,
-		mistral: ZapIcon,
-		'x-ai': XIcon,
-		microsoft: MicrosoftIcon,
-		qwen: CpuIcon,
-		deepseek: Deepseek,
-		cohere: Cohere,
-	};
-
-	function getCompanyFromModelId(modelId: string): string {
+	function getModelDomain(modelId: string): string | null {
 		const id = modelId.toLowerCase();
-		if (id.includes('gpt') || id.includes('o1') || id.includes('openai')) return 'openai';
-		if (id.includes('claude') || id.includes('anthropic')) return 'anthropic';
-		if (id.includes('gemini') || id.includes('gemma') || id.includes('google')) return 'google';
-		if (id.includes('llama') || id.includes('meta')) return 'meta';
-		if (id.includes('mistral') || id.includes('mixtral') || id.includes('minimax')) return 'mistral';
-		if (id.includes('grok') || id.includes('x-ai')) return 'x-ai';
-		if (id.includes('phi') || id.includes('microsoft') || id.includes('mimo')) return 'microsoft';
-		if (id.includes('qwen') || id.includes('alibaba')) return 'qwen';
-		if (id.includes('deepseek')) return 'deepseek';
-		if (id.includes('command') || id.includes('cohere')) return 'cohere';
+		if (id.includes('gpt') || id.includes('o1') || id.includes('o3') || id.includes('openai'))
+			return 'openai.com';
+		if (id.includes('claude') || id.includes('anthropic')) return 'anthropic.com';
+		if (id.includes('gemini') || id.includes('gemma') || id.includes('palm'))
+			return 'gemini.google.com';
+		if (id.includes('grok') || id.includes('x-ai')) return 'x.ai';
+		if (id.includes('llama') || id.includes('meta')) return 'meta.com';
+		if (id.includes('mistral') || id.includes('mixtral') || id.includes('codestral'))
+			return 'mistral.ai';
+		if (id.includes('minimax')) return 'minimax.io';
+		if (id.includes('deepseek')) return 'deepseek.com';
+		if (id.includes('qwen') || id.includes('qwq') || id.includes('alibaba')) return 'qwen.ai';
+		if (id.includes('glm') || id.includes('zhipu')) return 'z.ai';
+		if (id.includes('kimi') || id.includes('moonshot')) return 'moonshot.ai';
+		if (id.includes('mimo') || id.includes('xiaomi')) return 'mi.com';
+		if (id.includes('phi') || id.includes('microsoft')) return 'microsoft.com';
+		if (id.includes('command') || id.includes('cohere')) return 'cohere.com';
+		if (id.includes('gemma')) return 'google.com';
 		const provider = modelId.split('/')[0]?.toLowerCase();
-		if (provider && companyIcons[provider]) return provider;
-		return 'other';
+		if (provider && provider.includes('.')) return provider;
+		return null;
 	}
 
-	function getModelIcon(modelId: string): Component | null {
-		const id = modelId.toLowerCase();
-		if (id.includes('claude') || id.includes('anthropic')) return LogosClaudeIcon;
-		if (id.includes('gemini') || id.includes('gemma')) return MaterialIconThemeGeminiAi;
-		if (id.includes('mistral') || id.includes('mixtral')) return LogosMistralAiIcon;
-		return companyIcons[getCompanyFromModelId(modelId)] || null;
+	function faviconUrl(modelId: string): string | null {
+		const domain = getModelDomain(modelId);
+		if (!domain) return null;
+		return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 	}
 
 	function formatModelName(modelId: string) {
@@ -160,9 +140,13 @@
 			)}
 		>
 			<div class="flex items-center gap-2 pr-2">
-				{#if currentModel && getModelIcon(currentModel.model_id)}
-					{@const IconComponent = getModelIcon(currentModel.model_id)}
-					<IconComponent class="size-3" />
+				{#if currentModel && faviconUrl(currentModel.model_id)}
+					<img
+						src={faviconUrl(currentModel.model_id)}
+						alt=""
+						class="size-3.5 shrink-0 rounded-sm"
+						loading="lazy"
+					/>
 				{/if}
 				<span class="truncate">
 					{currentModel ? displayName(currentModel.model_id) : 'Select model'}
@@ -215,9 +199,13 @@
 								onclick={() => modelSelected(model.model_id)}
 								{disabled}
 							>
-								{#if getModelIcon(model.model_id)}
-									{@const ModelIcon = getModelIcon(model.model_id)}
-									<ModelIcon class="size-4 shrink-0" />
+								{#if faviconUrl(model.model_id)}
+									<img
+										src={faviconUrl(model.model_id)}
+										alt=""
+										class="size-4 shrink-0 rounded-sm"
+										loading="lazy"
+									/>
 								{/if}
 								<span class="truncate">{displayName(model.model_id)}</span>
 							</button>
