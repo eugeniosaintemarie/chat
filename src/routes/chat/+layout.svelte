@@ -27,7 +27,6 @@
 	import { fade, scale } from 'svelte/transition';
 	import SendIcon from '~icons/lucide/arrow-up';
 	import ChevronDownIcon from '~icons/lucide/chevron-down';
-	import GlobeIcon from '~icons/lucide/globe';
 	import ImageIcon from '~icons/lucide/image';
 	import PaperclipIcon from '~icons/lucide/paperclip';
 	import PanelLeftIcon from '~icons/lucide/panel-left';
@@ -137,7 +136,6 @@
 				conversation_id: page.params.id ?? undefined,
 				model_id: settings.modelId,
 				images: imagesCopy.length > 0 ? imagesCopy : undefined,
-				web_search_enabled: settings.webSearchEnabled,
 				reasoning_effort: currentModelSupportsReasoning ? settings.reasoningEffort : undefined,
 			});
 
@@ -758,24 +756,6 @@
 												</DropdownMenu.Content>
 											</DropdownMenu.Root>
 										{/if}
-										<Tooltip placement="top">
-											{#snippet trigger(tooltip)}
-												<button
-													{...tooltip.trigger}
-													type="button"
-												class={cn(
-													'flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors',
-													settings.webSearchEnabled
-														? 'border-sky-400 bg-sky-400/20 text-sky-400'
-														: 'border-border hover:bg-accent/20'
-												)}
-												onclick={() => (settings.webSearchEnabled = !settings.webSearchEnabled)}
-											>
-												<GlobeIcon class="!size-4" />
-												</button>
-											{/snippet}
-											Web search
-										</Tooltip>
 										<Tooltip placement="top">
 											{#snippet trigger(tooltip)}
 												<button

@@ -10,8 +10,6 @@
 	import { last } from '$lib/utils/array';
 	import { settings } from '$lib/state/settings.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import ShinyText from '$lib/components/animations/shiny-text.svelte';
-	import GlobeIcon from '~icons/lucide/globe';
 	import LoaderCircleIcon from '~icons/lucide/loader-circle';
 
 	const messages = useCachedQuery(api.messages.getAllFromConversation, () => ({
@@ -61,12 +59,6 @@
 			settings.modelId = lastMessage.model_id;
 		}
 
-		// Auto-enable/disable web search based on last user message
-		const lastUserMessage = messages.data.filter((m) => m.role === 'user').pop();
-		if (lastUserMessage) {
-			settings.webSearchEnabled = Boolean(lastUserMessage.web_search_enabled);
-		}
-
 		changedRoute = false;
 	});
 </script>
@@ -89,14 +81,7 @@
 			<Message {message} />
 		{/each}
 		{#if conversation.data?.generating}
-			{#if lastMessage?.web_search_enabled}
-				{#if lastMessage?.annotations === undefined || lastMessage?.annotations?.length === 0}
-					<div class="flex place-items-center gap-2">
-						<GlobeIcon class="inline size-4 shrink-0" />
-						<ShinyText class="text-muted-foreground text-sm">Searching the web...</ShinyText>
-					</div>
-				{/if}
-			{:else if !lastMessageHasReasoning && !lastMessageHasContent}
+			{#if !lastMessageHasReasoning && !lastMessageHasContent}
 				<LoadingDots />
 			{:else}
 				<div class="flex place-items-center gap-2">

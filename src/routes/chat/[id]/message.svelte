@@ -83,7 +83,6 @@
 				conversation_id: cid,
 				model_id: settings.modelId,
 				images: message.images,
-				web_search_enabled: message.web_search_enabled,
 			});
 
 			if (generateRes.isErr()) {
@@ -292,11 +291,6 @@
 					<span class="text-muted-foreground text-xs">
 						<BrainIcon class="inline-block size-4 shrink-0 text-green-500" />
 						{casing.camelToPascal(message.reasoning_effort)}
-					</span>
-				{/if}
-				{#if message.web_search_enabled}
-					<span class="text-muted-foreground text-xs">
-						<GlobeIcon class="text-primary inline-block size-4 shrink-0" />
 					</span>
 				{/if}
 
