@@ -45,7 +45,6 @@
 	import SparkleIcon from '~icons/lucide/sparkle';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import BrainIcon from '~icons/lucide/brain';
-	import * as casing from '$lib/utils/casing.js';
 
 	const client = useConvexClient();
 
@@ -248,6 +247,14 @@
 		if (!currentModel) return false;
 		return supportsReasoning(currentModel);
 	});
+
+	const reasoningColor = $derived(
+		{
+			low: 'text-green-500',
+			medium: 'text-yellow-500',
+			high: 'text-red-500',
+		}[settings.reasoningEffort] ?? 'text-white'
+	);
 
 	const fileUpload = new FileUpload({
 		multiple: true,
@@ -730,14 +737,11 @@
 									<div class="flex items-center gap-2">
 										{#if currentModelSupportsReasoning}
 											<DropdownMenu.Root>
-												<DropdownMenu.Trigger
-													class="border-border hover:bg-accent/20 flex items-center gap-1 rounded-full border px-1 py-1 text-xs transition-colors disabled:opacity-50 sm:px-2"
-												>
-													<BrainIcon class="!size-3" />
-													<span class="hidden whitespace-nowrap sm:inline">
-														{casing.camelToPascal(settings.reasoningEffort)}
-													</span>
-												</DropdownMenu.Trigger>
+											<DropdownMenu.Trigger
+												class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors disabled:opacity-50"
+											>
+												<BrainIcon class={cn('!size-4', reasoningColor)} />
+											</DropdownMenu.Trigger>
 												<DropdownMenu.Content align="start">
 													<DropdownMenu.Item onSelect={() => (settings.reasoningEffort = 'high')}>
 														<BrainIcon class="size-4" />

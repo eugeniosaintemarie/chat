@@ -280,7 +280,7 @@
 			{#if hasReasoning}
 				<Tooltip>
 					{#snippet trigger(tooltip)}
-						<span {...tooltip.trigger} class="text-green-400">
+						<span {...tooltip.trigger} class="text-pink-400">
 							<BrainIcon class="size-3.5" />
 						</span>
 					{/snippet}
