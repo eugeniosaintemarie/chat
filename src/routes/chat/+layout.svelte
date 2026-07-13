@@ -763,13 +763,15 @@
 												<button
 													{...tooltip.trigger}
 													type="button"
-													class={cn(
-														'border-border flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors',
-														settings.webSearchEnabled ? 'bg-accent/50' : 'hover:bg-accent/20'
-													)}
-													onclick={() => (settings.webSearchEnabled = !settings.webSearchEnabled)}
-												>
-													<GlobeIcon class="!size-4" />
+												class={cn(
+													'flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors',
+													settings.webSearchEnabled
+														? 'border-sky-400 bg-sky-400/20 text-sky-400'
+														: 'border-border hover:bg-accent/20'
+												)}
+												onclick={() => (settings.webSearchEnabled = !settings.webSearchEnabled)}
+											>
+												<GlobeIcon class="!size-4" />
 												</button>
 											{/snippet}
 											Web search
