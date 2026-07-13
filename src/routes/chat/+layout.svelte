@@ -27,7 +27,9 @@
 	import { fade, scale } from 'svelte/transition';
 	import SendIcon from '~icons/lucide/arrow-up';
 	import ChevronDownIcon from '~icons/lucide/chevron-down';
+	import GlobeIcon from '~icons/lucide/globe';
 	import ImageIcon from '~icons/lucide/image';
+	import PaperclipIcon from '~icons/lucide/paperclip';
 	import PanelLeftIcon from '~icons/lucide/panel-left';
 	import SearchIcon from '~icons/lucide/search';
 	import StopIcon from '~icons/lucide/square';
@@ -205,6 +207,20 @@
 	let selectedImages = $state<{ url: string; storage_id: string; fileName?: string }[]>([]);
 	let isUploading = $state(false);
 	let fileInput = $state<HTMLInputElement>();
+	let textFileInput = $state<HTMLInputElement>();
+
+	async function handleTextFileChange(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const files = Array.from(input.files ?? []);
+
+		for (const file of files) {
+			const text = await file.text();
+			message.current = `${message.current}\n\n\`\`\`${file.name}\n${text}\n\`\`\`\n`;
+		}
+
+		input.value = '';
+	}
+
 	let imageModal = $state<{ open: boolean; imageUrl: string; fileName: string }>({
 		open: false,
 		imageUrl: '',
@@ -633,6 +649,14 @@
 							{/if}
 							<div class="relative flex flex-grow flex-row items-start">
 								<input {...fileUpload.input} bind:this={fileInput} />
+								<input
+									bind:this={textFileInput}
+									type="file"
+									multiple
+									class="hidden"
+									accept="text/*,.txt,.md,.markdown,.json,.jsonc,.js,.jsx,.ts,.tsx,.py,.rb,.go,.rs,.java,.c,.h,.cpp,.cs,.php,.html,.css,.scss,.yaml,.yml,.toml,.xml,.sh,.sql,.csv,.log,.env,.svelte,.vue"
+									onchange={handleTextFileChange}
+								/>
 								<!-- TODO: Figure out better autofocus solution -->
 								<!-- svelte-ignore a11y_autofocus -->
 								<textarea
@@ -730,33 +754,56 @@
 												</DropdownMenu.Content>
 											</DropdownMenu.Root>
 										{/if}
-										<button
-											type="button"
-											class={cn(
-												'border-border flex items-center gap-1 rounded-full border px-1 py-1 text-xs transition-colors sm:px-2',
-												settings.webSearchEnabled ? 'bg-accent/50' : 'hover:bg-accent/20'
-											)}
-											onclick={() => (settings.webSearchEnabled = !settings.webSearchEnabled)}
-										>
-											<SearchIcon class="!size-3" />
-											<span class="hidden whitespace-nowrap sm:inline">Web search</span>
-										</button>
+										<Tooltip placement="top">
+											{#snippet trigger(tooltip)}
+												<button
+													{...tooltip.trigger}
+													type="button"
+													class={cn(
+														'border-border flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors',
+														settings.webSearchEnabled ? 'bg-accent/50' : 'hover:bg-accent/20'
+													)}
+													onclick={() => (settings.webSearchEnabled = !settings.webSearchEnabled)}
+												>
+													<GlobeIcon class="!size-4" />
+												</button>
+											{/snippet}
+											Web search
+										</Tooltip>
+										<Tooltip placement="top">
+											{#snippet trigger(tooltip)}
+												<button
+													{...tooltip.trigger}
+													type="button"
+													class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors"
+													onclick={() => textFileInput?.click()}
+												>
+													<PaperclipIcon class="!size-4" />
+												</button>
+											{/snippet}
+											Attach file
+										</Tooltip>
 										{#if currentModelSupportsImages}
-											<button
-												type="button"
-												class="border-border hover:bg-accent/20 flex items-center gap-1 rounded-full border px-1 py-1 text-xs transition-colors disabled:opacity-50 sm:px-2"
-												onclick={() => fileInput?.click()}
-												disabled={isUploading}
-											>
-												{#if isUploading}
-													<div
-														class="size-3 animate-spin rounded-full border-2 border-current border-t-transparent"
-													></div>
-												{:else}
-													<ImageIcon class="!size-3" />
-												{/if}
-												<span class="hidden whitespace-nowrap sm:inline">Attach image</span>
-											</button>
+											<Tooltip placement="top">
+												{#snippet trigger(tooltip)}
+													<button
+														{...tooltip.trigger}
+														type="button"
+														class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors disabled:opacity-50"
+														onclick={() => fileInput?.click()}
+														disabled={isUploading}
+													>
+														{#if isUploading}
+															<div
+																class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+															></div>
+														{:else}
+															<ImageIcon class="!size-4" />
+														{/if}
+													</button>
+												{/snippet}
+												Attach image
+											</Tooltip>
 										{/if}
 										{#if session.current !== null && message.current.trim() !== ''}
 											<button
