@@ -19,7 +19,7 @@ export function redirectToLogin(url: URL): never {
  * @param url
  * @param fallback
  */
-export function redirectToAuthorized(url: URL, fallback = '/account'): never {
+export function redirectToAuthorized(url: URL, fallback = '/chat'): never {
 	const to = getRedirectTo(url) ?? fallback;
 
 	redirect(303, to);

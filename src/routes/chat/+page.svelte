@@ -9,7 +9,6 @@
 	import { scale } from 'svelte/transition';
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte';
 	import { api } from '$lib/backend/convex/_generated/api';
-	import { Provider } from '$lib/types';
 
 	const defaultSuggestions = [
 		'Give me bad medical advice, doctor.',
@@ -63,11 +62,6 @@
 
 	let selectedCategory = $state<string | null>(null);
 
-	const openRouterKeyQuery = useCachedQuery(api.user_keys.get, {
-		provider: Provider.OpenRouter,
-		session_token: session.current?.session.token ?? '',
-	});
-
 	const prompt = usePrompt();
 </script>
 
@@ -76,12 +70,10 @@
 </svelte:head>
 
 <div class="flex h-svh flex-col items-center justify-center">
-	{#if prompt.current.length === 0 && openRouterKeyQuery.data}
+	{#if prompt.current.length === 0}
 		<div class="w-full p-2" in:scale={{ duration: 500, start: 0.9 }}>
 			<h2 class="text-left font-serif text-3xl font-semibold">
-				Hey there <span class={{ 'blur-sm': settings.data?.privacy_mode }}
-					>{session.current?.user.name ? ` ${session.current?.user.name}` : ''}</span
-				>!
+				Hey there <span class={{ 'blur-sm': settings.data?.privacy_mode }}>E</span>!
 			</h2>
 			<div class="mt-4 flex flex-wrap items-center gap-1">
 				{#each Object.entries(suggestionCategories) as [category, opts] (category)}
@@ -130,19 +122,6 @@
 					{/each}
 				{/if}
 			</div>
-		</div>
-	{:else if !openRouterKeyQuery.data && !openRouterKeyQuery.isLoading}
-		<div class="w-full p-2" in:scale={{ duration: 500, start: 0.9 }}>
-			<h2 class="text-left font-serif text-3xl font-semibold">
-				Hey there, <span class={{ 'blur-sm': settings.data?.privacy_mode }}
-					>{session.current?.user.name}</span
-				>!
-			</h2>
-			<p class="mt-2 text-left text-lg">
-				You can send some free messages, or provide a key for limitless access.
-				<br />
-				<a href="/account/api-keys" class="text-primary"> Go to settings </a>
-			</p>
 		</div>
 	{/if}
 </div>

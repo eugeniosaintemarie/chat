@@ -29,3 +29,6 @@ vite.config.ts.timestamp-*
 
 # NOTE: src/lib/backend/convex/_generated is intentionally tracked
 # so Vercel can build without running `convex dev`.
+
+.vercel
+.env*

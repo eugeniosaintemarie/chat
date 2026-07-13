@@ -5,7 +5,6 @@
 	import { type Doc, type Id } from '$lib/backend/convex/_generated/dataModel.js';
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
-	import * as Icons from '$lib/components/icons';
 	import { Button } from '$lib/components/ui/button';
 	import { ImageModal } from '$lib/components/ui/image-modal';
 	import { LightSwitch } from '$lib/components/ui/light-switch/index.js';
@@ -32,7 +31,6 @@
 	import ImageIcon from '~icons/lucide/image';
 	import PanelLeftIcon from '~icons/lucide/panel-left';
 	import SearchIcon from '~icons/lucide/search';
-	import Settings2Icon from '~icons/lucide/settings-2';
 	import StopIcon from '~icons/lucide/square';
 	import UploadIcon from '~icons/lucide/upload';
 	import XIcon from '~icons/lucide/x';
@@ -497,14 +495,6 @@
 				{/snippet}
 				Search ({cmdOrCtrl} + K)
 			</Tooltip>
-			<Tooltip>
-				{#snippet trigger(tooltip)}
-					<Button variant="ghost" size="icon" class="size-8" href="/account" {...tooltip.trigger}>
-						<Settings2Icon />
-					</Button>
-				{/snippet}
-				Settings
-			</Tooltip>
 			<LightSwitch variant="ghost" class="size-8" />
 		</div>
 		<div class="relative">
@@ -794,19 +784,6 @@
 						</div>
 					</form>
 				</div>
-			</div>
-
-			<!-- Credits in bottom-right, only on large screens -->
-			<div class="fixed right-4 bottom-4 hidden flex-col items-end gap-1 2xl:flex">
-				<a
-					href="https://github.com/TGlide/thom-chat"
-					class="text-muted-foreground flex place-items-center gap-1 text-xs"
-				>
-					Source on <Icons.GitHub class="inline size-3" />
-				</a>
-				<span class="text-muted-foreground flex place-items-center gap-1 text-xs">
-					Crafted by <Icons.Svelte class="inline size-3" /> wizards.
-				</span>
 			</div>
 		</div>
 	</Sidebar.Inset>

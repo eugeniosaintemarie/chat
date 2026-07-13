@@ -11,13 +11,11 @@
 	import { session } from '$lib/state/session.svelte';
 	import { cn } from '$lib/utils/utils.js';
 	import { useConvexClient } from 'convex-svelte';
-	import { Avatar } from 'melt/components';
 	import LoaderCircleIcon from '~icons/lucide/loader-circle';
 	import PanelLeftIcon from '~icons/lucide/panel-left';
 	import PinIcon from '~icons/lucide/pin';
 	import PinOffIcon from '~icons/lucide/pin-off';
 	import XIcon from '~icons/lucide/x';
-	import { Button } from './ui/button';
 	import { callModal } from './ui/modal/global-modal.svelte';
 	import SplitIcon from '~icons/lucide/split';
 
@@ -53,10 +51,6 @@
 		});
 		await goto(`/chat`);
 	}
-
-	const settings = useCachedQuery(api.user_settings.get, {
-		session_token: session.current?.session.token ?? '',
-	});
 
 	const conversationsQuery = useCachedQuery(api.conversations.get, {
 		session_token: session.current?.session.token ?? '',
@@ -281,42 +275,5 @@
 		<div
 			class="from-sidebar pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-4 bg-gradient-to-t to-transparent"
 		></div>
-	</div>
-	<div class="py-2">
-		{#if page.data.session !== null}
-			<Button href="/account" variant="ghost" class="h-auto w-full justify-start">
-				<Avatar src={page.data.session?.user.image ?? undefined}>
-					{#snippet children(avatar)}
-						<img
-							{...avatar.image}
-							alt="Your avatar"
-							class={cn('size-10 rounded-full', {
-								'blur-[6px]': settings.data?.privacy_mode,
-							})}
-						/>
-						<span {...avatar.fallback} class="size-10 rounded-full">
-							{page.data.session?.user.name
-								.split(' ')
-								.map((name: string) => name[0]?.toUpperCase())
-								.join('')}
-						</span>
-					{/snippet}
-				</Avatar>
-				<div class="flex flex-col">
-					<span class={cn('text-sm', { 'blur-[6px]': settings.data?.privacy_mode })}>
-						{page.data.session?.user.name}
-					</span>
-					<span
-						class={cn('text-muted-foreground text-xs', {
-							'blur-[6px]': settings.data?.privacy_mode,
-						})}
-					>
-						{page.data.session?.user.email}
-					</span>
-				</div>
-			</Button>
-		{:else}
-			<Button href="/login" class="w-full">Login</Button>
-		{/if}
 	</div>
 </Sidebar.Sidebar>

@@ -3,7 +3,6 @@
 	import { api } from '$lib/backend/convex/_generated/api.js';
 	import { type Id } from '$lib/backend/convex/_generated/dataModel.js';
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte.js';
-	import * as Icons from '$lib/components/icons';
 	import { Button } from '$lib/components/ui/button';
 	import { LightSwitch } from '$lib/components/ui/light-switch/index.js';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
@@ -112,19 +111,8 @@
 	<footer class="border-border mt-16 border-t py-8">
 		<div class="mx-auto max-w-4xl px-4">
 			<div
-				class="text-muted-foreground flex flex-col items-center gap-4 text-center text-sm sm:flex-row sm:justify-between"
+				class="text-muted-foreground flex flex-col items-center gap-4 text-center text-sm sm:flex-row sm:justify-end"
 			>
-				<div class="flex items-center gap-4">
-					<a
-						href="https://github.com/TGlide/thom-chat"
-						class="hover:text-foreground flex items-center gap-1 transition-colors"
-					>
-						Source on <Icons.GitHub class="inline size-3" />
-					</a>
-					<span class="flex items-center gap-1">
-						Crafted by <Icons.Svelte class="inline size-3" /> wizards.
-					</span>
-				</div>
 				<div>
 					<a href="/chat" class="hover:text-foreground transition-colors">
 						Create your own conversation →
