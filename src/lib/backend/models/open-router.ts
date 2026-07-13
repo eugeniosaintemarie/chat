@@ -1,6 +1,3 @@
-import { ResultAsync } from 'neverthrow';
-import { OPENAI_BASE_URL } from '$env/static/private';
-
 export interface OpenRouterModel {
 	id: string;
 	name: string;
@@ -34,17 +31,4 @@ interface OpenRouterPricing {
 	input_cache_write: string;
 	web_search: string;
 	internal_reasoning: string;
-}
-
-export function getOpenRouterModels() {
-	return ResultAsync.fromPromise(
-		(async () => {
-			const res = await fetch(`${OPENAI_BASE_URL}/models`);
-
-			const { data } = await res.json();
-
-			return data as OpenRouterModel[];
-		})(),
-		() => '[open-router] Failed to fetch models'
-	);
 }

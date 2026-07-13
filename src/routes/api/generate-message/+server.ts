@@ -1,12 +1,17 @@
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
-import { OPENROUTER_FREE_KEY, OPENAI_BASE_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
+import { OPENCODE_GO_BASE_URL } from '$lib/backend/models/opencode-go';
 import { api } from '$lib/backend/convex/_generated/api';
+
+const OPENAI_BASE_URL = env.OPENAI_BASE_URL || OPENCODE_GO_BASE_URL;
+const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
+const TITLE_MODEL = 'minimax-m2.5';
 import type { Doc, Id } from '$lib/backend/convex/_generated/dataModel';
 import { Provider, type Annotation } from '$lib/types';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { getSessionCookie } from 'better-auth/cookies';
 import { ConvexHttpClient } from 'convex/browser';
-import { err, ok, Result, ResultAsync } from 'neverthrow';
+import { ResultAsync } from 'neverthrow';
 import OpenAI from 'openai';
 import { z } from 'zod/v4';
 import { generationAbortControllers } from './cache.js';
@@ -81,17 +86,7 @@ async function generateConversationTitle({
 }) {
 	log('Starting conversation title generation', startTime);
 
-	const keyResult = await keyResultPromise;
-
-	if (keyResult.isErr()) {
-		log(`Title generation: API key error: ${keyResult.error}`, startTime);
-		return;
-	}
-
-	const userKey = keyResult.value;
-	const actualKey = userKey || OPENROUTER_FREE_KEY;
-
-	log(`Title generation: Using ${userKey ? 'user' : 'free tier'} API key`, startTime);
+	const actualKey = API_KEY;
 
 	// Only generate title if conversation currently has default title
 	const conversationResult = await ResultAsync.fromPromise(
@@ -133,7 +128,7 @@ If its a simple hi, just name it "Greeting" or something like that.
 
 	const titleResult = await ResultAsync.fromPromise(
 		openai.chat.completions.create({
-			model: 'mistralai/ministral-8b',
+			model: TITLE_MODEL,
 			messages: [{ role: 'user', content: titlePrompt }],
 			max_tokens: 20,
 			temperature: 0.5,
@@ -261,7 +256,7 @@ async function generateAIResponse({
 	const lastUserMessage = messages.filter((m) => m.role === 'user').pop();
 	const webSearchEnabled = lastUserMessage?.web_search_enabled ?? false;
 
-	const modelId = webSearchEnabled ? `${model.model_id}:online` : model.model_id;
+	const modelId = model.model_id;
 
 	// Create assistant message
 	const messageCreationResult = await ResultAsync.fromPromise(
@@ -313,61 +308,7 @@ async function generateAIResponse({
 		return;
 	}
 
-	const userKey = keyResult.value;
-	const userSettings = userSettingsResult.value;
-	let actualKey: string;
-
-	if (userKey) {
-		// User has their own API key
-		actualKey = userKey;
-		log('Background: Using user API key', startTime);
-	} else {
-		// User doesn't have API key, check if using a free model
-		const isFreeModel = model.model_id.endsWith(':free');
-
-		if (!isFreeModel) {
-			// For non-free models, check the 10 message limit
-			const freeMessagesUsed = userSettings?.free_messages_used || 0;
-
-			if (freeMessagesUsed >= 10) {
-				handleGenerationError({
-					error:
-						'Free message limit reached (10/10). Please add your own OpenRouter API key to continue chatting, or use a free model ending in ":free".',
-					conversationId,
-					messageId: mid,
-					sessionToken,
-					startTime,
-				});
-				return;
-			}
-
-			// Increment free message count before generating (only for non-free models)
-			const incrementResult = await ResultAsync.fromPromise(
-				client.mutation(api.user_settings.incrementFreeMessageCount, {
-					session_token: sessionToken,
-				}),
-				(e) => `Failed to increment free message count: ${e}`
-			);
-
-			if (incrementResult.isErr()) {
-				handleGenerationError({
-					error: `Failed to track free message usage: ${incrementResult.error}`,
-					conversationId,
-					messageId: mid,
-					sessionToken,
-					startTime,
-				});
-				return;
-			}
-
-			log(`Background: Using free tier (${freeMessagesUsed + 1}/10 messages)`, startTime);
-		} else {
-			log(`Background: Using free model (${model.model_id}) - no message count`, startTime);
-		}
-
-		// Use environment OpenRouter key
-		actualKey = OPENROUTER_FREE_KEY;
-	}
+	const actualKey = API_KEY;
 
 	if (rulesResult.isErr()) {
 		handleGenerationError({
@@ -552,27 +493,12 @@ ${attachedRules.map((r) => `- ${r.name}: ${r.rule}`).join('\n')}`,
 			(e) => `Failed to render HTML: ${e}`
 		);
 
-		const generationStatsResult = await retryResult(
-			() => getGenerationStats(generationId!, actualKey),
+		// OpenCode Go does not expose an OpenRouter-style generation stats endpoint.
+		const generationStats: { tokens_completion: number | undefined; total_cost: number | undefined } =
 			{
-				delay: 500,
-				retries: 2,
-				startTime,
-				fnName: 'getGenerationStats',
-			}
-		);
-
-		if (generationStatsResult.isErr()) {
-			log(`Background: Failed to get generation stats: ${generationStatsResult.error}`, startTime);
-		}
-
-		// just default so we don't blow up
-		const generationStats = generationStatsResult.unwrapOr({
-			tokens_completion: undefined,
-			total_cost: undefined,
-		});
-
-		log('Background: Got generation stats', startTime);
+				tokens_completion: undefined,
+				total_cost: undefined,
+			};
 
 		const contentHtmlResult = await contentHtmlResultPromise;
 
@@ -829,57 +755,6 @@ export const POST: RequestHandler = async ({ request }) => {
 	return response({ ok: true, conversation_id: conversationId });
 };
 
-async function getGenerationStats(
-	generationId: string,
-	token: string
-): Promise<Result<Data, string>> {
-	try {
-		const generation = await fetch(`${OPENAI_BASE_URL}/generation?id=${generationId}`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-
-		const { data } = await generation.json();
-
-		if (!data) {
-			return err('No data returned from OpenRouter');
-		}
-
-		return ok(data);
-	} catch {
-		return err('Failed to get generation stats');
-	}
-}
-
-async function retryResult<T, E>(
-	fn: () => Promise<Result<T, E>>,
-	{
-		retries,
-		delay,
-		startTime,
-		fnName,
-	}: { retries: number; delay: number; startTime: number; fnName: string }
-): Promise<Result<T, E>> {
-	let attempts = 0;
-	let lastResult: Result<T, E> | null = null;
-
-	while (attempts <= retries) {
-		lastResult = await fn();
-
-		if (lastResult.isOk()) return lastResult;
-
-		log(`Retrying ${fnName} ${attempts} failed: ${lastResult.error}`, startTime);
-
-		await new Promise((resolve) => setTimeout(resolve, delay));
-		attempts++;
-	}
-
-	if (!lastResult) throw new Error('This should never happen');
-
-	return lastResult;
-}
-
 async function handleGenerationError({
 	error,
 	conversationId,
@@ -911,39 +786,4 @@ async function handleGenerationError({
 	}
 
 	log('Error updated', startTime);
-}
-
-export interface ApiResponse {
-	data: Data;
-}
-
-export interface Data {
-	created_at: string;
-	model: string;
-	app_id: string | null;
-	external_user: string | null;
-	streamed: boolean;
-	cancelled: boolean;
-	latency: number;
-	moderation_latency: number | null;
-	generation_time: number;
-	tokens_prompt: number;
-	tokens_completion: number;
-	native_tokens_prompt: number;
-	native_tokens_completion: number;
-	native_tokens_reasoning: number;
-	native_tokens_cached: number;
-	num_media_prompt: number | null;
-	num_media_completion: number | null;
-	num_search_results: number | null;
-	origin: string;
-	is_byok: boolean;
-	finish_reason: string;
-	native_finish_reason: string;
-	usage: number;
-	id: string;
-	upstream_id: string;
-	total_cost: number;
-	cache_discount: number | null;
-	provider_name: string;
 }

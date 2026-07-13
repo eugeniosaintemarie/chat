@@ -1,15 +1,17 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { ResultAsync } from 'neverthrow';
 import { z } from 'zod/v4';
-import { OPENROUTER_FREE_KEY, OPENAI_BASE_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { OpenAI } from 'openai';
 import { ConvexHttpClient } from 'convex/browser';
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { api } from '$lib/backend/convex/_generated/api';
 import { parseMessageForRules } from '$lib/utils/rules';
-import { Provider } from '$lib/types';
+import { OPENCODE_GO_BASE_URL } from '$lib/backend/models/opencode-go';
 
-const FREE_MODEL = 'google/gemma-3-27b-it';
+const OPENAI_BASE_URL = env.OPENAI_BASE_URL || OPENCODE_GO_BASE_URL;
+const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
+const ENHANCE_MODEL = 'minimax-m2.5';
 
 const reqBodySchema = z.object({
 	prompt: z.string(),
@@ -53,28 +55,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return error(401, 'You must be logged in to enhance a prompt');
 	}
 
-	const [rulesResult, keyResult] = await Promise.all([
-		ResultAsync.fromPromise(
-			client.query(api.user_rules.all, {
-				session_token: session.session.token,
-			}),
-			(e) => `Failed to get rules: ${e}`
-		),
-		ResultAsync.fromPromise(
-			client.query(api.user_keys.get, {
-				provider: Provider.OpenRouter,
-				session_token: session.session.token,
-			}),
-			(e) => `Failed to get API key: ${e}`
-		),
-	]);
+	const rulesResult = await ResultAsync.fromPromise(
+		client.query(api.user_rules.all, {
+			session_token: session.session.token,
+		}),
+		(e) => `Failed to get rules: ${e}`
+	);
 
 	if (rulesResult.isErr()) {
 		return error(500, 'Failed to get rules');
-	}
-
-	if (keyResult.isErr()) {
-		return error(500, 'Failed to get key');
 	}
 
 	const mentionedRules = parseMessageForRules(
@@ -84,7 +73,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 	const openai = new OpenAI({
 		baseURL: OPENAI_BASE_URL,
-		apiKey: keyResult.value ?? OPENROUTER_FREE_KEY,
+		apiKey: API_KEY,
 	});
 
 	const enhancePrompt = `
@@ -108,7 +97,7 @@ ${args.prompt}
 
 	const enhancedResult = await ResultAsync.fromPromise(
 		openai.chat.completions.create({
-			model: FREE_MODEL,
+			model: ENHANCE_MODEL,
 			messages: [{ role: 'user', content: enhancePrompt }],
 			temperature: 0.5,
 		}),

@@ -160,20 +160,25 @@ export const sync_all = mutation({
 			.withIndex('by_user', (q) => q.eq('user_id', session.userId))
 			.collect();
 
+		if (args.model_ids.length === 0) return;
+
+		const catalog = new Set(args.model_ids);
 		const existingIds = new Set(existing.map((m) => m.model_id));
 
 		const toInsert = args.model_ids.filter((id) => !existingIds.has(id));
+		const toRemove = existing.filter((m) => !catalog.has(m.model_id));
 
-		await Promise.all(
-			toInsert.map((model_id) =>
+		await Promise.all([
+			...toInsert.map((model_id) =>
 				ctx.db.insert('user_enabled_models', {
 					user_id: session.userId,
 					provider: Provider.OpenRouter,
 					model_id,
 					pinned: false,
 				})
-			)
-		);
+			),
+			...toRemove.map((m) => ctx.db.delete(m._id)),
+		]);
 	},
 });
 
@@ -200,11 +205,7 @@ export const enable_initial = mutation({
 			return;
 		}
 
-		const initialModels = [
-			'google/gemini-2.5-flash',
-			'deepseek/deepseek-chat-v3-0324:free',
-			'microsoft/phi-4:free',
-		];
+		const initialModels = ['glm-5.2', 'deepseek-v4-pro', 'kimi-k2.6'];
 
 		await Promise.all(
 			initialModels.map((model) =>
