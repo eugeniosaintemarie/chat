@@ -72,7 +72,7 @@
 <div class="flex h-svh flex-col items-center justify-center">
 	{#if prompt.current.length === 0}
 		<div class="w-full p-2" in:scale={{ duration: 500, start: 0.9 }}>
-			<h2 class="text-left font-serif text-3xl font-semibold">
+			<h2 class="text-left font-serif text-2xl font-semibold sm:text-3xl">
 				Hey there <span class={{ 'blur-sm': settings.data?.privacy_mode }}>E</span>!
 			</h2>
 			<div class="mt-4 flex flex-wrap items-center gap-1">
