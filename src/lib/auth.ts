@@ -16,7 +16,9 @@ export const auth = betterAuth({
 			allowedHosts: ['*'],
 			fallback: `http://localhost:${process.env.PORT ?? 5173}`,
 		},
-	trustedProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto'],
+	advanced: {
+		trustedProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto'],
+	},
 	secret: privateEnv.BETTER_AUTH_SECRET!,
 	database: convexAdapter(client),
 	socialProviders: {
