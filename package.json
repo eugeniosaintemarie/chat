@@ -81,6 +81,7 @@
 		"@fontsource-variable/nunito-sans": "^5.2.6",
 		"@fontsource-variable/open-sans": "^5.2.6",
 		"@fontsource/instrument-serif": "^5.2.6",
+		"@opentelemetry/api": "^1.9.1",
 		"@vercel/functions": "^3.7.5",
 		"better-auth": "^1.6.23",
 		"convex-helpers": "^0.1.94",
