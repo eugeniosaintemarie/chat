@@ -27,6 +27,7 @@
 	import { fade, scale } from 'svelte/transition';
 	import SendIcon from '~icons/lucide/arrow-up';
 	import ChevronDownIcon from '~icons/lucide/chevron-down';
+	import ImageIcon from '~icons/lucide/image';
 	import PaperclipIcon from '~icons/lucide/paperclip';
 	import PanelLeftIcon from '~icons/lucide/panel-left';
 	import SearchIcon from '~icons/lucide/search';
@@ -775,7 +776,11 @@
 															class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
 														></div>
 													{:else}
-														<PaperclipIcon class="!size-4" />
+														{#if currentModelSupportsImages}
+															<ImageIcon class="!size-4" />
+														{:else}
+															<PaperclipIcon class="!size-4" />
+														{/if}
 													{/if}
 												</button>
 											{/snippet}

@@ -13,12 +13,11 @@
 	import type { OpenRouterModel } from '$lib/backend/models/open-router';
 	import { Provider } from '$lib/types';
 	import { fuzzysearch } from '$lib/utils/fuzzy-search';
-	import { supportsImages, supportsReasoning } from '$lib/utils/model-capabilities';
+	import { supportsImages } from '$lib/utils/model-capabilities';
 	import { capitalize } from '$lib/utils/strings';
 	import { cn } from '$lib/utils/utils';
 	import { useConvexClient } from 'convex-svelte';
 	import { ResultAsync } from 'neverthrow';
-	import BrainIcon from '~icons/lucide/brain';
 	import ChevronDownIcon from '~icons/lucide/chevron-down';
 	import EyeIcon from '~icons/lucide/eye';
 	import SearchIcon from '~icons/lucide/search';
@@ -219,7 +218,6 @@
 {#snippet modelRow(model: (typeof enabledArr)[number])}
 	{@const meta = catalogById.get(model.model_id)}
 	{@const hasImages = meta ? supportsImages(meta) : false}
-	{@const hasReasoning = meta ? supportsReasoning(meta) : false}
 	{@const tier = costTier(meta)}
 	{@const disabled = onlyImageModels && !hasImages}
 	{@const selected = model.model_id === settings.modelId}
@@ -248,6 +246,16 @@
 				/>
 			{/if}
 			<span class="truncate">{displayName(model.model_id)}</span>
+			{#if tier > 0}
+				<span
+					class="text-emerald-400 text-[11px] font-semibold leading-none tabular-nums"
+					title={avgCostPerMTok(meta) === 0
+						? 'Free to use'
+						: `≈ $${avgCostPerMTok(meta)!.toFixed(2)} / 1M tokens (in+out avg)`}
+				>
+					{'$'.repeat(tier)}
+				</span>
+			{/if}
 		</button>
 
 		<div class="flex shrink-0 items-center gap-1.5">
@@ -259,31 +267,6 @@
 						</span>
 					{/snippet}
 					Supports image analysis
-				</Tooltip>
-			{/if}
-			{#if hasReasoning}
-				<Tooltip>
-					{#snippet trigger(tooltip)}
-						<span {...tooltip.trigger} class="text-pink-400">
-							<BrainIcon class="size-3.5" />
-						</span>
-					{/snippet}
-					Supports reasoning
-				</Tooltip>
-			{/if}
-			{#if tier > 0}
-				<Tooltip>
-					{#snippet trigger(tooltip)}
-						<span
-							{...tooltip.trigger}
-							class="text-emerald-400 text-[11px] font-semibold leading-none tabular-nums"
-						>
-							{'$'.repeat(tier)}
-						</span>
-					{/snippet}
-					{avgCostPerMTok(meta) === 0
-						? 'Free to use'
-						: `≈ $${avgCostPerMTok(meta)!.toFixed(2)} / 1M tokens (in+out avg)`}
 				</Tooltip>
 			{/if}
 
