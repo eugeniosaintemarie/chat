@@ -32,7 +32,7 @@
 		base: 'prose rounded-xl p-2 max-w-full',
 		variants: {
 			role: {
-				user: 'bg-secondary/50 border border-secondary/70 px-3 py-2 !text-white self-end',
+				user: 'bg-secondary/50 border border-secondary/70 px-3 py-2 !text-foreground self-end',
 				assistant: 'text-foreground',
 			},
 		},
