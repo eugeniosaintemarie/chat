@@ -10,6 +10,7 @@
 	import { models as modelsState } from '$lib/state/models.svelte';
 	import { session } from '$lib/state/session.svelte';
 	import { settings } from '$lib/state/settings.svelte';
+	import type { OpenRouterModel } from '$lib/backend/models/open-router';
 	import { Provider } from '$lib/types';
 	import { fuzzysearch } from '$lib/utils/fuzzy-search';
 	import { supportsImages, supportsReasoning } from '$lib/utils/model-capabilities';
@@ -94,6 +95,28 @@
 		return catalogById.get(modelId)?.name ?? formatModelName(modelId);
 	}
 
+	/**
+	 * Average USD cost per 1M tokens (input + output), sourced from the OpenRouter /
+	 * models.dev `pricing` field already present in the catalog. `null` when unknown.
+	 */
+	function avgCostPerMTok(model: OpenRouterModel | undefined): number | null {
+		if (!model) return null;
+		const p = Number(model.pricing.prompt);
+		const c = Number(model.pricing.completion);
+		if (Number.isNaN(p) && Number.isNaN(c)) return null;
+		if (p <= 0 && c <= 0) return 0;
+		return (p + c) / 2;
+	}
+
+	/** Cost tier as a number of dollar signs: 1 = $, 2 = $$, 3 = $$$. 0 = unknown. */
+	function costTier(model: OpenRouterModel | undefined): 0 | 1 | 2 | 3 {
+		const cost = avgCostPerMTok(model);
+		if (cost === null) return 0;
+		if (cost <= 2) return 1;
+		if (cost <= 8) return 2;
+		return 3;
+	}
+
 	let open = $state(false);
 	let search = $state('');
 
@@ -157,12 +180,26 @@
 				<span class="truncate">
 					{currentModel ? displayName(currentModel.model_id) : 'Select model'}
 				</span>
+				{#if currentModel}
+					{@const tier = costTier(catalogById.get(currentModel.model_id))}
+					{#if tier > 0}
+						<span
+							class="text-emerald-400 text-[11px] font-semibold leading-none tabular-nums"
+							title={avgCostPerMTok(catalogById.get(currentModel.model_id)) === 0
+								? 'Free to use'
+								: `≈ $${avgCostPerMTok(catalogById.get(currentModel.model_id))!.toFixed(2)} / 1M tokens (in+out avg)`}
+						>
+							{'$'.repeat(tier)}
+						</span>
+					{/if}
+				{/if}
 			</div>
 			<ChevronDownIcon class="size-4 opacity-50" />
 		</Popover.Trigger>
 
 		<Popover.Content
 			portalProps={{ disabled: isFirefox }}
+			side="top"
 			align="start"
 			sideOffset={5}
 			class={cn('w-[320px] max-w-[calc(100vw-2rem)] p-0')}
@@ -196,6 +233,7 @@
 	{@const meta = catalogById.get(model.model_id)}
 	{@const hasImages = meta ? supportsImages(meta) : false}
 	{@const hasReasoning = meta ? supportsReasoning(meta) : false}
+	{@const tier = costTier(meta)}
 	{@const disabled = onlyImageModels && !hasImages}
 	{@const selected = model.model_id === settings.modelId}
 	{@const pinned = isPinned(model)}
@@ -244,6 +282,21 @@
 						</span>
 					{/snippet}
 					Supports reasoning
+				</Tooltip>
+			{/if}
+			{#if tier > 0}
+				<Tooltip>
+					{#snippet trigger(tooltip)}
+						<span
+							{...tooltip.trigger}
+							class="text-emerald-400 text-[11px] font-semibold leading-none tabular-nums"
+						>
+							{'$'.repeat(tier)}
+						</span>
+					{/snippet}
+					{avgCostPerMTok(meta) === 0
+						? 'Free to use'
+						: `≈ $${avgCostPerMTok(meta)!.toFixed(2)} / 1M tokens (in+out avg)`}
 				</Tooltip>
 			{/if}
 
