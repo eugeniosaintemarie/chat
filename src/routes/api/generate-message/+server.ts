@@ -1,6 +1,7 @@
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { env } from '$env/dynamic/private';
 import { resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
+import { waitUntil } from '@vercel/functions';
 import { api } from '$lib/backend/convex/_generated/api';
 
 const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
@@ -749,35 +750,41 @@ export const POST: RequestHandler = async ({ request }) => {
 	const abortController = new AbortController();
 	generationAbortControllers.set(conversationId, abortController);
 
-	// Start AI response generation in background - don't await
-	generateAIResponse({
-		conversationId,
-		sessionToken,
-		startTime,
-		modelResultPromise,
-		keyResultPromise,
-		rulesResultPromise,
-		userSettingsPromise,
-		abortSignal: abortController.signal,
-		reasoningEffort: args.reasoning_effort,
-	})
-		.catch(async (error) => {
-			log(`Background AI response generation error: ${error}`, startTime);
-			// Reset generating status on error
-			try {
-				await client.mutation(api.conversations.updateGenerating, {
-					conversation_id: conversationId as Id<'conversations'>,
-					generating: false,
-					session_token: sessionToken,
-				});
-			} catch (e) {
-				log(`Failed to reset generating status after error: ${e}`, startTime);
-			}
+	// Start AI response generation in background - don't await.
+	// `waitUntil` (Vercel) keeps the serverless function alive for the whole
+	// generation. OpenCode's reasoning models stream for 25s+, which exceeds the
+	// default background window, so without this the in-flight request gets
+	// aborted mid-stream once the HTTP response is sent.
+	waitUntil(
+		generateAIResponse({
+			conversationId,
+			sessionToken,
+			startTime,
+			modelResultPromise,
+			keyResultPromise,
+			rulesResultPromise,
+			userSettingsPromise,
+			abortSignal: abortController.signal,
+			reasoningEffort: args.reasoning_effort,
 		})
-		.finally(() => {
-			// Clean up the cached AbortController
-			generationAbortControllers.delete(conversationId);
-		});
+			.catch(async (error) => {
+				log(`Background AI response generation error: ${error}`, startTime);
+				// Reset generating status on error
+				try {
+					await client.mutation(api.conversations.updateGenerating, {
+						conversation_id: conversationId as Id<'conversations'>,
+						generating: false,
+						session_token: sessionToken,
+					});
+				} catch (e) {
+					log(`Failed to reset generating status after error: ${e}`, startTime);
+				}
+			})
+			.finally(() => {
+				// Clean up the cached AbortController
+				generationAbortControllers.delete(conversationId);
+			})
+	);
 
 	log('Response sent, AI generation started in background', startTime);
 	return response({ ok: true, conversation_id: conversationId });

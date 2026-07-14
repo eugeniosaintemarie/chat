@@ -111,6 +111,16 @@
 	});
 
 	let showReasoning = $state(false);
+
+	// While the assistant is still generating (content empty but reasoning has
+	// started arriving), auto-expand the reasoning panel so the user can see the
+	// model "thinking" live instead of staring at a static "Reasoning..." button
+	// and assuming the request is stuck.
+	$effect(() => {
+		if (message.content.length === 0 && message.reasoning && message.reasoning.length > 0) {
+			showReasoning = true;
+		}
+	});
 </script>
 
 {#if message.role !== 'system' && !(message.role === 'assistant' && message.content.length === 0 && message.reasoning?.length === 0 && !message.error)}
