@@ -32,7 +32,7 @@
 		base: 'prose rounded-xl p-2 max-w-full',
 		variants: {
 			role: {
-				user: 'bg-secondary/50 border border-secondary/70 px-3 py-2 !text-black/80 dark:!text-primary-foreground self-end',
+				user: 'bg-secondary/50 border border-secondary/70 px-3 py-2 !text-white self-end',
 				assistant: 'text-foreground',
 			},
 		},
@@ -174,7 +174,7 @@
 					{/if}
 				</button>
 				{#if showReasoning}
-					<div class="text-muted-foreground/50 bg-popover relative rounded-lg p-2 text-xs">
+					<div class="text-foreground/60 bg-popover relative rounded-lg p-2 text-xs">
 						{message.reasoning}
 					</div>
 				{/if}
