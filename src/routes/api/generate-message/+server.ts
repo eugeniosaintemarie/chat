@@ -781,6 +781,21 @@ async function handleGenerationError({
 
 	if (updateErrorResult.isErr()) {
 		log(`Error updating error: ${updateErrorResult.error}`, startTime);
+	}
+
+	// Always stop the "generating" spinner when an error occurs, otherwise the
+	// conversation is stuck in a perpetual "thinking" state on the client.
+	const updateGeneratingResult = await ResultAsync.fromPromise(
+		client.mutation(api.conversations.updateGenerating, {
+			conversation_id: conversationId as Id<'conversations'>,
+			generating: false,
+			session_token: sessionToken,
+		}),
+		(e) => `Error resetting generating status: ${e}`
+	);
+
+	if (updateGeneratingResult.isErr()) {
+		log(`Error resetting generating status: ${updateGeneratingResult.error}`, startTime);
 		return;
 	}
 

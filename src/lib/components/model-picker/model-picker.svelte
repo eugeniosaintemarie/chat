@@ -2,7 +2,6 @@
 	import { api } from '$lib/backend/convex/_generated/api';
 	import type { Id } from '$lib/backend/convex/_generated/dataModel';
 	import { isPinned } from '$lib/backend/convex/user_enabled_models';
-	import { isFreeModel } from '$lib/backend/models/opencode-go';
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
@@ -39,9 +38,16 @@
 		session_token: session.current?.session.token ?? '',
 	});
 
-	const enabledArr = $derived(Object.values(enabledModelsQuery.data ?? {}));
-
 	modelsState.init();
+
+	const catalog = $derived(modelsState.from(Provider.OpenRouter));
+	const catalogById = $derived(new Map(catalog.map((m) => [m.id, m])));
+
+	// Only show models that are present in the catalog (which is already filtered
+	// to the models the current API key is entitled to).
+	const enabledArr = $derived(
+		Object.values(enabledModelsQuery.data ?? {}).filter((m) => catalogById.has(m.model_id))
+	);
 
 	function getModelDomain(modelId: string): string | null {
 		const id = modelId.toLowerCase();
@@ -84,9 +90,6 @@
 			.join(' ');
 	}
 
-	const catalog = $derived(modelsState.from(Provider.OpenRouter));
-	const catalogById = $derived(new Map(catalog.map((m) => [m.id, m])));
-
 	function displayName(modelId: string): string {
 		return catalogById.get(modelId)?.name ?? formatModelName(modelId);
 	}
@@ -109,16 +112,6 @@
 			return displayName(a.model_id).localeCompare(displayName(b.model_id));
 		})
 	);
-
-	const goModels = $derived(sortedModels.filter((m) => !isFreeModel(m.model_id)));
-	const zenModels = $derived(sortedModels.filter((m) => isFreeModel(m.model_id)));
-
-	let goCollapsed = $state(false);
-	let zenCollapsed = $state(true);
-
-	const searching = $derived(search.trim() !== '');
-	const goOpen = $derived(!goCollapsed || searching);
-	const zenOpen = $derived(!zenCollapsed || searching);
 
 	const currentModel = $derived(enabledArr.find((m) => m.model_id === settings.modelId));
 
@@ -190,43 +183,9 @@
 				{#if sortedModels.length === 0}
 					<p class="text-muted-foreground px-3 py-6 text-center text-sm">No models found</p>
 				{:else}
-					{#if goModels.length > 0}
-						<button
-							type="button"
-							class="text-muted-foreground hover:text-foreground flex w-full items-center gap-1 px-2 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors"
-							onclick={() => (goCollapsed = !goCollapsed)}
-						>
-							<ChevronDownIcon
-								class={cn('size-3.5 transition-transform', !goOpen && '-rotate-90')}
-							/>
-							Go
-							<span class="text-muted-foreground/60 ml-auto normal-case">{goModels.length}</span>
-						</button>
-						{#if goOpen}
-							{#each goModels as model (model._id)}
-								{@render modelRow(model)}
-							{/each}
-						{/if}
-					{/if}
-
-					{#if zenModels.length > 0}
-						<button
-							type="button"
-							class="text-muted-foreground hover:text-foreground mt-1 flex w-full items-center gap-1 px-2 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors"
-							onclick={() => (zenCollapsed = !zenCollapsed)}
-						>
-							<ChevronDownIcon
-								class={cn('size-3.5 transition-transform', !zenOpen && '-rotate-90')}
-							/>
-							Zen <span class="normal-case">(free&stable)</span>
-							<span class="text-muted-foreground/60 ml-auto normal-case">{zenModels.length}</span>
-						</button>
-						{#if zenOpen}
-							{#each zenModels as model (model._id)}
-								{@render modelRow(model)}
-							{/each}
-						{/if}
-					{/if}
+					{#each sortedModels as model (model._id)}
+						{@render modelRow(model)}
+					{/each}
 				{/if}
 			</div>
 		</Popover.Content>

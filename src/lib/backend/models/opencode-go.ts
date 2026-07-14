@@ -1,22 +1,13 @@
+import { env } from '$env/dynamic/private';
 import { ResultAsync } from 'neverthrow';
 import type { OpenRouterModel } from './open-router';
 
 const MODELS_DEV_URL = 'https://models.dev/api.json';
 const GO_PROVIDER_ID = 'opencode-go';
-const ZEN_PROVIDER_ID = 'opencode';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 export const OPENCODE_GO_BASE_URL = 'https://opencode.ai/zen/go/v1';
 export const OPENCODE_ZEN_BASE_URL = 'https://opencode.ai/zen/v1';
-
-// Stable/documented free models from OpenCode Zen (https://opencode.ai/docs/zen)
-const ZEN_FREE_MODEL_IDS = [
-	'deepseek-v4-flash-free',
-	'mimo-v2.5-free',
-	'north-mini-code-free',
-	'nemotron-3-ultra-free',
-	'hy3-free',
-];
 
 export function isFreeModel(modelId: string): boolean {
 	return modelId.endsWith('-free');
@@ -47,6 +38,68 @@ interface ModelsDevModel {
 }
 
 let cache: { at: number; models: OpenRouterModel[] } | null = null;
+
+function goApiKey(): string {
+	return env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
+}
+
+/**
+ * Fetches the model ids the current API key is actually entitled to from the
+ * OpenCode Go `/v1/models` endpoint. Returns `null` when the key is missing or
+ * the request fails, in which case the caller falls back to the full static
+ * catalog.
+ */
+async function getAvailableGoModelIds(): Promise<Set<string> | null> {
+	const key = goApiKey();
+	if (!key) return null;
+
+	try {
+		const res = await fetch(`${OPENCODE_GO_BASE_URL}/models`, {
+			headers: { Authorization: `Bearer ${key}` },
+		});
+
+		if (!res.ok) return null;
+
+		const json = (await res.json()) as { data?: Array<{ id: string }> };
+		const ids = (json.data ?? []).map((m) => m.id);
+
+		if (ids.length === 0) return null;
+
+		return new Set(ids);
+	} catch {
+		return null;
+	}
+}
+
+/** Builds a minimal model entry for ids returned by the API but missing from models.dev. */
+function fallbackModel(id: string): OpenRouterModel {
+	return {
+		id,
+		name: id,
+		created: 0,
+		description: '',
+		architecture: {
+			input_modalities: ['text'],
+			output_modalities: ['text'],
+			tokenizer: '',
+		},
+		top_provider: { is_moderated: false },
+		pricing: {
+			prompt: '0',
+			completion: '0',
+			image: '0',
+			request: '0',
+			input_cache_read: '0',
+			input_cache_write: '0',
+			web_search: '0',
+			internal_reasoning: '0',
+		},
+		context_length: 0,
+		hugging_face_id: '',
+		per_request_limits: {},
+		supported_parameters: [],
+	};
+}
 
 function mapModel(m: ModelsDevModel): OpenRouterModel {
 	return {
@@ -87,14 +140,21 @@ export function getOpenCodeGoModels() {
 			const res = await fetch(MODELS_DEV_URL);
 			const data = (await res.json()) as Record<string, { models?: Record<string, ModelsDevModel> }>;
 
-			const goModels = Object.values(data[GO_PROVIDER_ID]?.models ?? {}).map(mapModel);
-
-			const zenProviderModels = data[ZEN_PROVIDER_ID]?.models ?? {};
-			const zenFreeModels = ZEN_FREE_MODEL_IDS.filter((id) => zenProviderModels[id]).map((id) =>
-				mapModel(zenProviderModels[id]!)
+			const metaById = new Map(
+				Object.values(data[GO_PROVIDER_ID]?.models ?? {}).map((m) => [m.id, mapModel(m)])
 			);
 
-			const models = [...goModels, ...zenFreeModels];
+			// Only surface the models the current API key is actually entitled to.
+			const availableIds = await getAvailableGoModelIds();
+
+			const goModels: OpenRouterModel[] =
+				availableIds === null
+					? [...metaById.values()]
+					: [...availableIds]
+							.map((id) => metaById.get(id) ?? fallbackModel(id))
+							.sort((a, b) => a.id.localeCompare(b.id));
+
+			const models = goModels;
 
 			cache = { at: Date.now(), models };
 
