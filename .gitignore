@@ -31,4 +31,3 @@ vite.config.ts.timestamp-*
 # so Vercel can build without running `convex dev`.
 
 .vercel
-.env*
