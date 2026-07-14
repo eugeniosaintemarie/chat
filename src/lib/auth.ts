@@ -9,7 +9,10 @@ import { env as privateEnv } from '$env/dynamic/private';
 const client = new ConvexHttpClient(env.PUBLIC_CONVEX_URL!.replace(/\/+$/, ''));
 
 export const auth = betterAuth({
-	baseURL: privateEnv.BETTER_AUTH_URL,
+	baseURL: {
+		allowedHosts: ['*.vercel.app', 'localhost', '127.0.0.1'],
+		fallback: privateEnv.BETTER_AUTH_URL ?? 'http://localhost:5173',
+	},
 	secret: privateEnv.BETTER_AUTH_SECRET!,
 	database: convexAdapter(client),
 	socialProviders: {
