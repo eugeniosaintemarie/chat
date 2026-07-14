@@ -768,7 +768,7 @@
 												<button
 													{...tooltip.trigger}
 													type="button"
-													class="border-border hover:bg-accent/20 flex items-center justify-center gap-0.5 rounded-full border p-1.5 text-xs transition-colors"
+													class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors"
 													onclick={() => combinedFileInput?.click()}
 												>
 													{#if isUploading}
@@ -778,6 +778,7 @@
 													{:else}
 														<PaperclipIcon class="!size-4" />
 														{#if currentModelSupportsImages}
+															<span class="text-muted-foreground leading-none">/</span>
 															<ImageIcon class="!size-4" />
 														{/if}
 													{/if}
