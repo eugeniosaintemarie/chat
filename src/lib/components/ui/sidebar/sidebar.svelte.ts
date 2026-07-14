@@ -2,7 +2,7 @@ import { IsMobile } from '$lib/hooks/is-mobile.svelte';
 import { Context } from 'runed';
 
 export class SidebarRootState {
-	open = $state(true);
+	open = $state(false);
 	openMobile = $state(false);
 	isMobile = new IsMobile();
 
