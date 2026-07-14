@@ -27,7 +27,6 @@
 	import { fade, scale } from 'svelte/transition';
 	import SendIcon from '~icons/lucide/arrow-up';
 	import ChevronDownIcon from '~icons/lucide/chevron-down';
-	import ImageIcon from '~icons/lucide/image';
 	import PaperclipIcon from '~icons/lucide/paperclip';
 	import PanelLeftIcon from '~icons/lucide/panel-left';
 	import SearchIcon from '~icons/lucide/search';
@@ -204,17 +203,22 @@
 	let selectedImages = $state<{ url: string; storage_id: string; fileName?: string }[]>([]);
 	let isUploading = $state(false);
 	let fileInput = $state<HTMLInputElement>();
-	let textFileInput = $state<HTMLInputElement>();
+	let combinedFileInput = $state<HTMLInputElement>();
 
-	async function handleTextFileChange(e: Event) {
-		const input = e.currentTarget as HTMLInputElement;
-		const files = Array.from(input.files ?? []);
-
+	async function handleTextFileChange(files: File[]) {
 		for (const file of files) {
 			const text = await file.text();
 			message.current = `${message.current}\n\n\`\`\`${file.name}\n${text}\n\`\`\`\n`;
 		}
+	}
 
+	async function handleAttachmentChange(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const files = Array.from(input.files ?? []);
+		const imageFiles = files.filter((f) => f.type.startsWith('image/'));
+		const textFiles = files.filter((f) => !f.type.startsWith('image/'));
+		if (imageFiles.length) await handleFileChange(imageFiles);
+		if (textFiles.length) await handleTextFileChange(textFiles);
 		input.value = '';
 	}
 
@@ -653,15 +657,17 @@
 								</div>
 							{/if}
 							<div class="relative flex flex-grow flex-row items-start">
-								<input {...fileUpload.input} bind:this={fileInput} />
-								<input
-									bind:this={textFileInput}
-									type="file"
-									multiple
-									class="hidden"
-									accept="text/*,.txt,.md,.markdown,.json,.jsonc,.js,.jsx,.ts,.tsx,.py,.rb,.go,.rs,.java,.c,.h,.cpp,.cs,.php,.html,.css,.scss,.yaml,.yml,.toml,.xml,.sh,.sql,.csv,.log,.env,.svelte,.vue"
-									onchange={handleTextFileChange}
-								/>
+							<input {...fileUpload.input} bind:this={fileInput} />
+							<input
+								bind:this={combinedFileInput}
+								type="file"
+								multiple
+								class="hidden"
+								accept={currentModelSupportsImages
+									? 'text/*,.txt,.md,.markdown,.json,.jsonc,.js,.jsx,.ts,.tsx,.py,.rb,.go,.rs,.java,.c,.h,.cpp,.cs,.php,.html,.css,.scss,.yaml,.yml,.toml,.xml,.sh,.sql,.csv,.log,.env,.svelte,.vue,image/*'
+									: 'text/*,.txt,.md,.markdown,.json,.jsonc,.js,.jsx,.ts,.tsx,.py,.rb,.go,.rs,.java,.c,.h,.cpp,.cs,.php,.html,.css,.scss,.yaml,.yml,.toml,.xml,.sh,.sql,.csv,.log,.env,.svelte,.vue'}
+								onchange={handleAttachmentChange}
+							/>
 								<!-- TODO: Figure out better autofocus solution -->
 								<!-- svelte-ignore a11y_autofocus -->
 								<textarea
@@ -762,35 +768,19 @@
 													{...tooltip.trigger}
 													type="button"
 													class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors"
-													onclick={() => textFileInput?.click()}
+													onclick={() => combinedFileInput?.click()}
 												>
-													<PaperclipIcon class="!size-4" />
+													{#if isUploading}
+														<div
+															class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+														></div>
+													{:else}
+														<PaperclipIcon class="!size-4" />
+													{/if}
 												</button>
 											{/snippet}
-											Attach file
+											{currentModelSupportsImages ? 'Attach file or image' : 'Attach file'}
 										</Tooltip>
-										{#if currentModelSupportsImages}
-											<Tooltip placement="top">
-												{#snippet trigger(tooltip)}
-													<button
-														{...tooltip.trigger}
-														type="button"
-														class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors disabled:opacity-50"
-														onclick={() => fileInput?.click()}
-														disabled={isUploading}
-													>
-														{#if isUploading}
-															<div
-																class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-															></div>
-														{:else}
-															<ImageIcon class="!size-4" />
-														{/if}
-													</button>
-												{/snippet}
-												Attach image
-											</Tooltip>
-										{/if}
 										{#if session.current !== null && message.current.trim() !== ''}
 											<button
 												type="button"

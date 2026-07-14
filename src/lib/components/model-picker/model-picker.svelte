@@ -180,19 +180,6 @@
 				<span class="truncate">
 					{currentModel ? displayName(currentModel.model_id) : 'Select model'}
 				</span>
-				{#if currentModel}
-					{@const tier = costTier(catalogById.get(currentModel.model_id))}
-					{#if tier > 0}
-						<span
-							class="text-emerald-400 text-[11px] font-semibold leading-none tabular-nums"
-							title={avgCostPerMTok(catalogById.get(currentModel.model_id)) === 0
-								? 'Free to use'
-								: `≈ $${avgCostPerMTok(catalogById.get(currentModel.model_id))!.toFixed(2)} / 1M tokens (in+out avg)`}
-						>
-							{'$'.repeat(tier)}
-						</span>
-					{/if}
-				{/if}
 			</div>
 			<ChevronDownIcon class="size-4 opacity-50" />
 		</Popover.Trigger>
