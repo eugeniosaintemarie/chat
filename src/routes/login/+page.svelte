@@ -4,7 +4,19 @@
 	import { authClient } from '$lib/backend/auth/client.js';
 
 	async function signInGitHub() {
-		await authClient.signIn.social({ provider: 'github', callbackURL: '/chat' });
+		try {
+			const { data, error } = await authClient.signIn.social({
+				provider: 'github',
+				callbackURL: '/chat'
+			});
+			if (data?.url) {
+				window.location.href = data.url;
+			} else if (error) {
+				console.error('GitHub sign-in error:', error);
+			}
+		} catch (e) {
+			console.error('GitHub sign-in failed:', e);
+		}
 	}
 </script>
 

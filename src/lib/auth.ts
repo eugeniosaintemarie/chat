@@ -13,7 +13,7 @@ const client = new ConvexHttpClient(env.PUBLIC_CONVEX_URL!.replace(/\/+$/, ''));
 export const auth = betterAuth({
 	baseURL:
 		privateEnv.BETTER_AUTH_URL ?? {
-			allowedHosts: ['*.vercel.app', 'localhost', '127.0.0.1'],
+			allowedHosts: ['*'],
 			fallback: `http://localhost:${process.env.PORT ?? 5173}`,
 		},
 	trustedProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto'],
