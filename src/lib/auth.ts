@@ -1,6 +1,8 @@
 import { betterAuth } from 'better-auth';
 import { convexAdapter } from '@better-auth-kit/convex';
 import { ConvexHttpClient } from 'convex/browser';
+import { sveltekitCookies } from 'better-auth/svelte-kit';
+import { getRequestEvent } from '$app/server';
 import 'dotenv/config';
 import { api } from './backend/convex/_generated/api';
 import { env } from '$env/dynamic/public';
@@ -9,10 +11,12 @@ import { env as privateEnv } from '$env/dynamic/private';
 const client = new ConvexHttpClient(env.PUBLIC_CONVEX_URL!.replace(/\/+$/, ''));
 
 export const auth = betterAuth({
-	baseURL: {
-		allowedHosts: ['*.vercel.app', 'localhost', '127.0.0.1'],
-		fallback: privateEnv.BETTER_AUTH_URL ?? 'http://localhost:5173',
-	},
+	baseURL:
+		privateEnv.BETTER_AUTH_URL ?? {
+			allowedHosts: ['*.vercel.app', 'localhost', '127.0.0.1'],
+			fallback: `http://localhost:${process.env.PORT ?? 5173}`,
+		},
+	trustedProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto'],
 	secret: privateEnv.BETTER_AUTH_SECRET!,
 	database: convexAdapter(client),
 	socialProviders: {
@@ -33,7 +37,7 @@ export const auth = betterAuth({
 			},
 		},
 	},
-	plugins: [],
+	plugins: [sveltekitCookies(getRequestEvent)],
 	session: {
 		cookieCache: {
 			enabled: true,
