@@ -71,36 +71,6 @@ async function getAvailableGoModelIds(): Promise<Set<string> | null> {
 	}
 }
 
-/** Builds a minimal model entry for ids returned by the API but missing from models.dev. */
-function fallbackModel(id: string): OpenRouterModel {
-	return {
-		id,
-		name: id,
-		created: 0,
-		description: '',
-		architecture: {
-			input_modalities: ['text'],
-			output_modalities: ['text'],
-			tokenizer: '',
-		},
-		top_provider: { is_moderated: false },
-		pricing: {
-			prompt: '0',
-			completion: '0',
-			image: '0',
-			request: '0',
-			input_cache_read: '0',
-			input_cache_write: '0',
-			web_search: '0',
-			internal_reasoning: '0',
-		},
-		context_length: 0,
-		hugging_face_id: '',
-		per_request_limits: {},
-		supported_parameters: [],
-	};
-}
-
 function mapModel(m: ModelsDevModel): OpenRouterModel {
 	return {
 		id: m.id,
@@ -144,15 +114,14 @@ export function getOpenCodeGoModels() {
 				Object.values(data[GO_PROVIDER_ID]?.models ?? {}).map((m) => [m.id, mapModel(m)])
 			);
 
-			// Only surface the models the current API key is actually entitled to.
+			// Only surface the curated Go models the current API key is entitled to.
+			// We intersect with the API's available ids so models that aren't part of
+			// the Go catalog (e.g. hy3-preview) never show up.
 			const availableIds = await getAvailableGoModelIds();
 
-			const goModels: OpenRouterModel[] =
-				availableIds === null
-					? [...metaById.values()]
-					: [...availableIds]
-							.map((id) => metaById.get(id) ?? fallbackModel(id))
-							.sort((a, b) => a.id.localeCompare(b.id));
+			const goModels: OpenRouterModel[] = [...metaById.values()]
+				.filter((m) => availableIds === null || availableIds.has(m.id))
+				.sort((a, b) => a.id.localeCompare(b.id));
 
 			const models = goModels;
 
