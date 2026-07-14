@@ -1,6 +1,6 @@
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { env } from '$env/dynamic/private';
-import { resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
+import { resolveOpenCodeBaseUrl, getGoEndpointType, streamOpenCodeGoAnthropic, OPENCODE_GO_BASE_URL } from '$lib/backend/models/opencode-go';
 import { api } from '$lib/backend/convex/_generated/api';
 
 const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
@@ -108,11 +108,6 @@ async function generateConversationTitle({
 		return;
 	}
 
-	const openai = new OpenAI({
-		baseURL: resolveOpenCodeBaseUrl(TITLE_MODEL),
-		apiKey: actualKey,
-	});
-
 	// Create a prompt for title generation using only the first user message
 	const titlePrompt = `Based on this message:
 """${userMessage}"""
@@ -125,23 +120,61 @@ Also, do not interact with the message directly or answer it. Just generate the 
 If its a simple hi, just name it "Greeting" or something like that.
 `;
 
-	const titleResult = await ResultAsync.fromPromise(
-		openai.chat.completions.create({
-			model: TITLE_MODEL,
-			messages: [{ role: 'user', content: titlePrompt }],
-			max_tokens: 20,
-			temperature: 0.5,
-		}),
-		(e) => `Title generation API call failed: ${e}`
-	);
+	const titleEndpointType = await getGoEndpointType(TITLE_MODEL);
+	let rawTitle: string | undefined;
 
-	if (titleResult.isErr()) {
-		log(`Title generation: OpenAI call failed: ${titleResult.error}`, startTime);
-		return;
+	if (titleEndpointType === 'anthropic') {
+		const remoteTitle = await ResultAsync.fromPromise(
+			fetch(`${OPENCODE_GO_BASE_URL}/messages`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${actualKey}`,
+					'anthropic-version': '2023-06-01',
+				},
+				body: JSON.stringify({
+					model: TITLE_MODEL,
+					messages: [{ role: 'user', content: titlePrompt }],
+					max_tokens: 64,
+				}),
+			}).then(async (r) => {
+				if (!r.ok) throw new Error(`status ${r.status}`);
+				return (await r.json()) as { content?: Array<{ type: string; text?: string }> | string };
+			}),
+			(e) => `Title generation API call failed: ${e}`
+		);
+
+		if (remoteTitle.isErr()) {
+			log(`Title generation: Anthropic call failed: ${remoteTitle.error}`, startTime);
+			return;
+		}
+
+		const content = remoteTitle.value.content;
+		rawTitle =
+			typeof content === 'string' ? content : content?.map((b) => b.text ?? '').join('');
+	} else {
+		const openai = new OpenAI({
+			baseURL: resolveOpenCodeBaseUrl(TITLE_MODEL),
+			apiKey: actualKey,
+		});
+
+		const titleResult = await ResultAsync.fromPromise(
+			openai.chat.completions.create({
+				model: TITLE_MODEL,
+				messages: [{ role: 'user', content: titlePrompt }],
+				max_tokens: 20,
+				temperature: 0.5,
+			}),
+			(e) => `Title generation API call failed: ${e}`
+		);
+
+		if (titleResult.isErr()) {
+			log(`Title generation: OpenAI call failed: ${titleResult.error}`, startTime);
+			return;
+		}
+
+		rawTitle = titleResult.value.choices[0]?.message?.content?.trim();
 	}
-
-	const titleResponse = titleResult.value;
-	const rawTitle = titleResponse.choices[0]?.message?.content?.trim();
 
 	if (!rawTitle) {
 		log('Title generation: No title generated', startTime);
@@ -352,11 +385,6 @@ async function generateAIResponse({
 
 	log(`Background: ${attachedRules.length} rules attached`, startTime);
 
-	const openai = new OpenAI({
-		baseURL: resolveOpenCodeBaseUrl(modelId),
-		apiKey: actualKey,
-	});
-
 	const formattedMessages = messages.map((m) => {
 		if (m.images && m.images.length > 0 && m.role === 'user') {
 			return {
@@ -401,35 +429,7 @@ ${attachedRules.map((r) => `- ${r.name}: ${r.rule}`).join('\n')}`,
 		return;
 	}
 
-	const streamResult = await ResultAsync.fromPromise(
-		openai.chat.completions.create(
-			{
-				model: modelId,
-				messages: messagesToSend,
-				temperature: 0.7,
-				stream: true,
-				reasoning_effort: reasoningEffort,
-			},
-			{
-				signal: abortSignal,
-			}
-		),
-		(e) => `OpenAI API call failed: ${e}`
-	);
-
-	if (streamResult.isErr()) {
-		handleGenerationError({
-			error: `Failed to create stream: ${streamResult.error}`,
-			conversationId,
-			messageId: mid,
-			sessionToken,
-			startTime,
-		});
-		return;
-	}
-
-	const stream = streamResult.value;
-	log('Background: OpenAI stream created successfully', startTime);
+	const endpointType = await getGoEndpointType(modelId);
 
 	let content = '';
 	let reasoning = '';
@@ -438,49 +438,127 @@ ${attachedRules.map((r) => `- ${r.name}: ${r.rule}`).join('\n')}`,
 	const annotations: Annotation[] = [];
 
 	try {
-		for await (const chunk of stream) {
-			if (abortSignal?.aborted) {
-				log('AI response generation aborted during streaming', startTime);
-				break;
-			}
+		if (endpointType === 'anthropic') {
+			await streamOpenCodeGoAnthropic({
+				baseURL: OPENCODE_GO_BASE_URL,
+				apiKey: actualKey,
+				modelId,
+				messages: messagesToSend,
+				signal: abortSignal,
+				onChunk: async (d) => {
+					if (abortSignal?.aborted) return;
+					chunkCount++;
+					content = d.content;
+					reasoning = d.reasoning;
+					generationId = d.generationId;
+					if (!content && !reasoning) return;
 
-			chunkCount++;
+					const updateResult = await ResultAsync.fromPromise(
+						client.mutation(api.messages.updateContent, {
+							message_id: mid,
+							content,
+							reasoning: reasoning.length > 0 ? reasoning : undefined,
+							session_token: sessionToken,
+							generation_id: generationId,
+							annotations,
+							reasoning_effort: reasoningEffort,
+						}),
+						(e) => `Failed to update message content: ${e}`
+					);
 
-			// @ts-expect-error you're wrong
-			reasoning += chunk.choices[0]?.delta?.reasoning || '';
-			content += chunk.choices[0]?.delta?.content || '';
-			// @ts-expect-error you're wrong
-			annotations.push(...(chunk.choices[0]?.delta?.annotations ?? []));
+					if (updateResult.isErr()) {
+						log(
+							`Background message update failed on chunk ${chunkCount}: ${updateResult.error}`,
+							startTime
+						);
+					}
+				},
+			});
 
-			if (!content && !reasoning) continue;
+			log(
+				`Background Anthropic stream completed. Processed ${chunkCount} chunks, final content length: ${content.length}`,
+				startTime
+			);
+		} else {
+			const openai = new OpenAI({
+				baseURL: resolveOpenCodeBaseUrl(modelId),
+				apiKey: actualKey,
+			});
 
-			generationId = chunk.id;
-
-			const updateResult = await ResultAsync.fromPromise(
-				client.mutation(api.messages.updateContent, {
-					message_id: mid,
-					content,
-					reasoning: reasoning.length > 0 ? reasoning : undefined,
-					session_token: sessionToken,
-					generation_id: generationId,
-					annotations,
-					reasoning_effort: reasoningEffort,
-				}),
-				(e) => `Failed to update message content: ${e}`
+			const streamResult = await ResultAsync.fromPromise(
+				openai.chat.completions.create(
+					{
+						model: modelId,
+						messages: messagesToSend,
+						temperature: 0.7,
+						stream: true,
+						reasoning_effort: reasoningEffort,
+					},
+					{
+						signal: abortSignal,
+					}
+				),
+				(e) => `OpenAI API call failed: ${e}`
 			);
 
-			if (updateResult.isErr()) {
-				log(
-					`Background message update failed on chunk ${chunkCount}: ${updateResult.error}`,
-					startTime
-				);
+			if (streamResult.isErr()) {
+				handleGenerationError({
+					error: `Failed to create stream: ${streamResult.error}`,
+					conversationId,
+					messageId: mid,
+					sessionToken,
+					startTime,
+				});
+				return;
 			}
-		}
 
-		log(
-			`Background stream processing completed. Processed ${chunkCount} chunks, final content length: ${content.length}`,
-			startTime
-		);
+			const stream = streamResult.value;
+			log('Background: OpenAI stream created successfully', startTime);
+
+			for await (const chunk of stream) {
+				if (abortSignal?.aborted) {
+					log('AI response generation aborted during streaming', startTime);
+					break;
+				}
+
+				chunkCount++;
+
+				// @ts-expect-error you're wrong
+				reasoning += chunk.choices[0]?.delta?.reasoning || '';
+				content += chunk.choices[0]?.delta?.content || '';
+				// @ts-expect-error you're wrong
+				annotations.push(...(chunk.choices[0]?.delta?.annotations ?? []));
+
+				if (!content && !reasoning) continue;
+
+				generationId = chunk.id;
+
+				const updateResult = await ResultAsync.fromPromise(
+					client.mutation(api.messages.updateContent, {
+						message_id: mid,
+						content,
+						reasoning: reasoning.length > 0 ? reasoning : undefined,
+						session_token: sessionToken,
+						generation_id: generationId,
+						annotations,
+						reasoning_effort: reasoningEffort,
+					}),
+					(e) => `Failed to update message content: ${e}`
+				);
+
+				if (updateResult.isErr()) {
+					log(
+						`Background message update failed on chunk ${chunkCount}: ${updateResult.error}`,
+						startTime
+					);
+				}
+			}
+
+			log(
+				`Background stream processing completed. Processed ${chunkCount} chunks, final content length: ${content.length}`,
+				startTime
+			);
+		}
 
 		if (!generationId) {
 			log('Background: No generation id found', startTime);

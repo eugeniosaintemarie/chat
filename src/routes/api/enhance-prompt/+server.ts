@@ -7,7 +7,7 @@ import { ConvexHttpClient } from 'convex/browser';
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { api } from '$lib/backend/convex/_generated/api';
 import { parseMessageForRules } from '$lib/utils/rules';
-import { resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
+import { resolveOpenCodeBaseUrl, getGoEndpointType, OPENCODE_GO_BASE_URL } from '$lib/backend/models/opencode-go';
 
 const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
 const ENHANCE_MODEL = 'minimax-m2.5';
@@ -70,10 +70,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		rulesResult.value.filter((r) => r.attach === 'manual')
 	);
 
-	const openai = new OpenAI({
-		baseURL: resolveOpenCodeBaseUrl(ENHANCE_MODEL),
-		apiKey: API_KEY,
-	});
+	const endpointType = await getGoEndpointType(ENHANCE_MODEL);
 
 	const enhancePrompt = `
 Enhance prompt below (wrapped in <prompt> tags) so that it can be better understood by LLMs You job is not to answer the prompt but simply prepare it to be answered by another LLM. 
@@ -94,21 +91,59 @@ ${args.prompt}
 </prompt>
 `;
 
-	const enhancedResult = await ResultAsync.fromPromise(
-		openai.chat.completions.create({
-			model: ENHANCE_MODEL,
-			messages: [{ role: 'user', content: enhancePrompt }],
-			temperature: 0.5,
-		}),
-		(e) => `Enhance prompt API call failed: ${e}`
-	);
+	let enhanced: string | undefined;
 
-	if (enhancedResult.isErr()) {
-		return error(500, 'error enhancing the prompt');
+	if (endpointType === 'anthropic') {
+		const enhanceResult = await ResultAsync.fromPromise(
+			fetch(`${OPENCODE_GO_BASE_URL}/messages`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${API_KEY}`,
+					'anthropic-version': '2023-06-01',
+				},
+				body: JSON.stringify({
+					model: ENHANCE_MODEL,
+					messages: [{ role: 'user', content: enhancePrompt }],
+					max_tokens: 1024,
+				}),
+			}).then(async (r) => {
+				if (!r.ok) throw new Error(`status ${r.status}`);
+				return (await r.json()) as { content?: Array<{ type: string; text?: string }> | string };
+			}),
+			(e) => `Enhance prompt API call failed: ${e}`
+		);
+
+		if (enhanceResult.isErr()) {
+			return error(500, 'error enhancing the prompt');
+		}
+
+		const content = enhanceResult.value.content;
+		enhanced =
+			typeof content === 'string'
+				? content
+				: content?.map((b) => b.text ?? '').join('');
+	} else {
+		const openai = new OpenAI({
+			baseURL: resolveOpenCodeBaseUrl(ENHANCE_MODEL),
+			apiKey: API_KEY,
+		});
+
+		const enhancedResult = await ResultAsync.fromPromise(
+			openai.chat.completions.create({
+				model: ENHANCE_MODEL,
+				messages: [{ role: 'user', content: enhancePrompt }],
+				temperature: 0.5,
+			}),
+			(e) => `Enhance prompt API call failed: ${e}`
+		);
+
+		if (enhancedResult.isErr()) {
+			return error(500, 'error enhancing the prompt');
+		}
+
+		enhanced = enhancedResult.value.choices[0]?.message?.content;
 	}
-
-	const enhancedResponse = enhancedResult.value;
-	const enhanced = enhancedResponse.choices[0]?.message?.content;
 
 	if (!enhanced) {
 		return error(500, 'error enhancing the prompt');
