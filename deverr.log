@@ -1,0 +1,14 @@
+2026-07-14T18:04:49.245Z WARN [Better Auth]: Adapter does not correctly implement transaction function, patching it automatically. Please update your adapter implementation.
+2026-07-14T18:04:49.251Z WARN [Better Auth]: [better-auth] Base URL is not set. Set the baseURL option or BETTER_AUTH_URL env, or use a dynamic baseURL with allowedHosts for multi-host setups. Without it the origin is derived from the incoming request, and callbacks and redirects may not work correctly.
+2026-07-14T18:04:49.253Z WARN [Better Auth]: Social provider github is missing clientId or clientSecret
+Failed to load cache from sessionStorage: ReferenceError: sessionStorage is not defined
+    at SessionStorageCache.loadFromSessionStorage (C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/src/lib/cache/session-cache.ts:19:22)
+    at new SessionStorageCache (C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/src/lib/cache/session-cache.ts:15:10)
+    at eval (C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/src/lib/cache/cached-query.svelte.ts:14:21)
+    at async ESModulesEvaluator.runInlinedModule (file:///C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/node_modules/.pnpm/vite@6.3.5_@types+node@24.0.1_jiti@2.4.2_lightningcss@1.30.1/node_modules/vite/dist/node/module-runner.js:1062:5)
+    at async SSRCompatModuleRunner.directRequest (file:///C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/node_modules/.pnpm/vite@6.3.5_@types+node@24.0.1_jiti@2.4.2_lightningcss@1.30.1/node_modules/vite/dist/node/module-runner.js:1284:61)
+    at async SSRCompatModuleRunner.directRequest (file:///C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/node_modules/.pnpm/vite@6.3.5_@types+node@24.0.1_jiti@2.4.2_lightningcss@1.30.1/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:25274:23)
+    at async SSRCompatModuleRunner.cachedRequest (file:///C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/node_modules/.pnpm/vite@6.3.5_@types+node@24.0.1_jiti@2.4.2_lightningcss@1.30.1/node_modules/vite/dist/node/module-runner.js:1180:76)
+    at async eval (C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/src/lib/state/models.svelte.ts:5:668)
+    at async ESModulesEvaluator.runInlinedModule (file:///C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/node_modules/.pnpm/vite@6.3.5_@types+node@24.0.1_jiti@2.4.2_lightningcss@1.30.1/node_modules/vite/dist/node/module-runner.js:1062:5)
+    at async SSRCompatModuleRunner.directRequest (file:///C:/Users/esainte/DocumentosOFFLINE/GitHub/chat/node_modules/.pnpm/vite@6.3.5_@types+node@24.0.1_jiti@2.4.2_lightningcss@1.30.1/node_modules/vite/dist/node/module-runner.js:1284:61)
