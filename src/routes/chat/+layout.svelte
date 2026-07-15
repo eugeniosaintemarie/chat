@@ -778,7 +778,7 @@
 													{:else}
 														<PaperclipIcon class="!size-4" />
 														{#if currentModelSupportsImages}
-															<span class="text-muted-foreground leading-none">/</span>
+															<span class="text-muted-foreground leading-none">|</span>
 															<ImageIcon class="!size-4" />
 														{/if}
 													{/if}

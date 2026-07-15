@@ -202,7 +202,7 @@
 				/>
 			</label>
 
-			<div class="max-h-[min(50vh,360px)] overflow-y-auto p-1">
+			<div class="max-h-[min(35vh,320px)] overflow-y-auto p-1">
 				{#if sortedModels.length === 0}
 					<p class="text-muted-foreground px-3 py-6 text-center text-sm">No models found</p>
 				{:else}
