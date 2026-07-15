@@ -18,36 +18,37 @@
 
 **chat** is an open-source alternative/clone of [T3 Chat](https://t3.chat/), originally built for [Theo's cloneathon](https://x.com/theo/status/1931515264497254402).
 
-This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway** (an OpenAI-compatible endpoint) and ships a curated set of frontier **reasoning models**. It is fully self-hostable: bring your own Convex instance, auth provider, and model-gateway key.
+This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway** (an OpenAI-compatible endpoint) plus the **OpenRouter** catalog, and ships with a curated set of frontier **reasoning models**. It is fully self-hostable: bring your own Convex instance, GitHub OAuth app, and model-gateway key.
 
-> While it is a clone, the feature set is not identical to T3 Chat.
+> While it is a clone, the feature set is not identical to T3 Chat — this is a finished, personal portfolio build with a focused, polished feature set.
 
 ## ✨ Features
 
 ### 🤖 AI & Models
-- **Curated frontier reasoning models** served through the OpenCode Go gateway
+- **Two model sources** — the curated OpenCode Go gateway (including a free `zen` tier) and the full OpenRouter catalog, aggregated at runtime
+- **Live pricing tiers** — the model picker shows a `$` / `$$` / `$$$` cost badge (computed from live `models.dev` pricing) and an 👁 vision indicator next to each model name, so you can pick by price and capability at a glance
 - **Live reasoning display** — watch the model "think" as it streams (`reasoning_content` / `reasoning`)
-- **Real-time token streaming** with server-side streaming so chats survive reloads
-- **Bring Your Own Key** — users can supply their own gateway key for unlimited use
+- **Adjustable reasoning effort** — pick high / medium / low reasoning depth per chat
+- **Real-time token streaming** with server-side persistence so chats survive reloads
 
 ### 💬 Chat Experience
-- **Conversation branching** to explore different paths from any message
-- **Auto-generated conversation titles**
-- **Cursor-like rules** for consistent assistant behavior
-- **Full-text search** across your chat history
-- **Privacy mode** for safe screen sharing
+- **Auto-generated conversation titles** (named from the first message)
+- **Cursor-like rules** (`@rule` mentions) for consistent assistant behavior — attach rules automatically or on demand
+- **Full-text search** across your chat history (command-palette style search modal)
+- **Public sharing** — generate a shareable, read-only link for any conversation (`/share/[id]`)
 
 ### 🧩 Rich Content
-- **Image uploads** (multimodal where supported)
-- **Web search** integration for up-to-date answers
+- **Multimodal image uploads** — the attach button adapts to the selected model:
+  - 📎 when the model is text-only
+  - 📎`|`🖼️ when the model supports vision (clip + image in one control)
 - **Markdown rendering** with syntax highlighting (Shiki) and sanitization
-- **Citations / annotations** (URL citations) rendered inline
+- **Citations / annotations** (URL citations) rendered inline under assistant messages
 - **Enhance prompt** to polish rough prompts before sending
 
-### ⚙️ Productivity
-- **Keyboard shortcuts** for power users
-- **Message regeneration**
-- **Light / dark theme** with system preference detection
+### ⚙️ Productivity & UI
+- **Light / dark theme** with system preference detection (mode-watcher)
+- **Branded app icon & favicon** (PNG favicon + Apple touch icon) served from `static/`
+- **GitHub OAuth login** — sign in with your GitHub account to sync conversations
 
 ## 🛠️ Tech Stack
 
@@ -66,8 +67,9 @@ This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway*
 
 **Backend & Infra**
 - 🔧 Convex (database + serverless functions)
-- 🔐 Better Auth (GitHub OAuth)
-- 🤖 OpenCode Go gateway (OpenAI-compatible)
+- 🔐 Better Auth (GitHub OAuth) via `@better-auth-kit/convex`
+- 🤖 OpenCode Go gateway + OpenRouter (OpenAI-compatible)
+- 🗂 Model catalog sourced from [models.dev](https://models.dev)
 - ▲ Deployed on Vercel (`@sveltejs/adapter-vercel`)
 
 </td>
@@ -87,8 +89,8 @@ This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway*
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/tglide/thom-chat.git
-   cd thom-chat
+   git clone https://github.com/eugeniosaintemarie/chat.git
+   cd chat
    ```
 
 2. **Install dependencies**
@@ -118,10 +120,11 @@ This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway*
 | Variable | Required | Description |
 | --- | --- | --- |
 | `OPENCODE_API_KEY` | ✅ | OpenCode Go (or OpenAI-compatible) gateway key, used server-side. Falls back to `OPENROUTER_FREE_KEY` if unset. |
+| `OPENROUTER_FREE_KEY` | ⬜ | Optional OpenRouter free-tier key used as a fallback when `OPENCODE_API_KEY` is unset. |
 | `BETTER_AUTH_SECRET` | ✅ | Secret used to sign Better Auth sessions. Generate a long random string. |
 | `GITHUB_CLIENT_ID` | ✅ | GitHub OAuth app client id. |
 | `GITHUB_CLIENT_SECRET` | ✅ | GitHub OAuth app client secret. |
-| `BETTER_AUTH_URL` | ⬜ | Public base URL of the deployment (e.g. `https://your-app.vercel.app`). |
+| `BETTER_AUTH_URL` | ⬜ | Public base URL of the deployment (e.g. `https://your-app.vercel.app`). Falls back to `http://localhost:5173` when unset. |
 | `PUBLIC_CONVEX_URL` | ⚙️ | Set automatically by `convex dev` into `.env.local`. |
 
 > 🔒 All secrets above live in environment variables / Vercel project settings — **none are committed to the repository**.
@@ -145,7 +148,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 - Inspired by [T3 Chat](https://t3.chat/)
 - Originally created by [Thomas G. Lopes](https://github.com/tglide) and [Aidan Blesar](https://github.com/ieedan)
 - Built with [SvelteKit](https://kit.svelte.dev/), [Convex](https://convex.dev/), and [Better Auth](https://better-auth.com/)
-- Models served via [OpenCode](https://opencode.ai/)
+- Models served via [OpenCode](https://opencode.ai/) and [OpenRouter](https://openrouter.ai/)
 
 ---
 
