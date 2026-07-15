@@ -4,6 +4,7 @@
 	import { isPinned } from '$lib/backend/convex/user_enabled_models';
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte';
 	import * as Popover from '$lib/components/ui/popover';
+	import Modal from '$lib/components/ui/modal/modal.svelte';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
 	import { isFirefox } from '$lib/hooks/is-firefox.svelte';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
@@ -159,61 +160,86 @@
 	}
 </script>
 
-<Popover.Root bind:open>
-	{#if enabledArr.length}
-		<Popover.Trigger
+{#snippet triggerContent()}
+	<div class="flex items-center gap-2 pr-2">
+		{#if currentModel && faviconUrl(currentModel.model_id)}
+			<img
+				src={faviconUrl(currentModel.model_id)}
+				alt=""
+				class="size-3.5 shrink-0 rounded-sm"
+				loading="lazy"
+			/>
+		{/if}
+		<span class="truncate">
+			{currentModel ? displayName(currentModel.model_id) : 'Select model'}
+		</span>
+	</div>
+	<ChevronDownIcon class="size-4 opacity-50" />
+{/snippet}
+
+{#snippet pickerBody()}
+	<label
+		class="border-border text-muted-foreground flex items-center gap-2 border-b px-3 py-2.5 text-sm"
+	>
+		<SearchIcon class="size-4 shrink-0" />
+		<input
+			bind:value={search}
+			class="text-foreground placeholder:text-muted-foreground w-full bg-transparent outline-none"
+			placeholder="Search models..."
+			autocomplete="off"
+		/>
+	</label>
+
+	<div class="max-h-[min(55vh,420px)] overflow-y-auto p-1">
+		{#if sortedModels.length === 0}
+			<p class="text-muted-foreground px-3 py-6 text-center text-sm">No models found</p>
+		{:else}
+			{#each sortedModels as model (model._id)}
+				{@render modelRow(model)}
+			{/each}
+		{/if}
+	</div>
+{/snippet}
+
+{#if enabledArr.length}
+	{#if isMobile.current}
+		<button
+			type="button"
+			onclick={() => (open = true)}
 			class={cn(
 				'ring-offset-background focus:ring-ring hover:text-foreground flex items-center justify-between rounded-lg px-2 py-1 text-xs transition focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
 				className
 			)}
 		>
-			<div class="flex items-center gap-2 pr-2">
-				{#if currentModel && faviconUrl(currentModel.model_id)}
-					<img
-						src={faviconUrl(currentModel.model_id)}
-						alt=""
-						class="size-3.5 shrink-0 rounded-sm"
-						loading="lazy"
-					/>
-				{/if}
-				<span class="truncate">
-					{currentModel ? displayName(currentModel.model_id) : 'Select model'}
-				</span>
-			</div>
-			<ChevronDownIcon class="size-4 opacity-50" />
-		</Popover.Trigger>
+			{@render triggerContent()}
+		</button>
 
-		<Popover.Content
-			portalProps={{ disabled: isFirefox }}
-			side="top"
-			align="start"
-			sideOffset={5}
-			class={cn('w-[320px] max-w-[calc(100vw-2rem)] p-0')}
-		>
-			<label
-				class="border-border text-muted-foreground flex items-center gap-2 border-b px-3 py-2.5 text-sm"
+		<Modal bind:open class="modal-bottom" boxClass="p-0 max-h-[85vh]">
+			{@render pickerBody()}
+		</Modal>
+	{:else}
+		<Popover.Root bind:open>
+			<Popover.Trigger
+				class={cn(
+					'ring-offset-background focus:ring-ring hover:text-foreground flex items-center justify-between rounded-lg px-2 py-1 text-xs transition focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+					className
+				)}
 			>
-				<SearchIcon class="size-4 shrink-0" />
-				<input
-					bind:value={search}
-					class="text-foreground placeholder:text-muted-foreground w-full bg-transparent outline-none"
-					placeholder="Search models..."
-					autocomplete="off"
-				/>
-			</label>
+				{@render triggerContent()}
+			</Popover.Trigger>
 
-			<div class="max-h-[min(35vh,320px)] overflow-y-auto p-1">
-				{#if sortedModels.length === 0}
-					<p class="text-muted-foreground px-3 py-6 text-center text-sm">No models found</p>
-				{:else}
-					{#each sortedModels as model (model._id)}
-						{@render modelRow(model)}
-					{/each}
-				{/if}
-			</div>
-		</Popover.Content>
+			<Popover.Content
+				portalProps={{ disabled: isFirefox }}
+				side="top"
+				align="start"
+				sideOffset={5}
+				class={cn('w-[320px] max-w-[calc(100vw-2rem)] p-0')}
+			>
+				{@render pickerBody()}
+			</Popover.Content>
+		</Popover.Root>
 	{/if}
-</Popover.Root>
+{/if}
 
 {#snippet modelRow(model: (typeof enabledArr)[number])}
 	{@const meta = catalogById.get(model.model_id)}

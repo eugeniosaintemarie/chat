@@ -7,6 +7,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import { useSidebarControls } from '$lib/components/ui/sidebar';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
+	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
 	import { session } from '$lib/state/session.svelte';
 	import { cn } from '$lib/utils/utils.js';
 	import { useConvexClient } from 'convex-svelte';
@@ -23,6 +24,24 @@
 	const client = useConvexClient();
 
 	const controls = useSidebarControls();
+
+	const isMobile = new IsMobile();
+
+	// On touch devices there's no hover, so the pin/delete actions can't rely on
+	// the desktop slide-in-on-hover reveal — keep them permanently visible there.
+	const actionClass = $derived(
+		isMobile.current
+			? 'pointer-events-auto absolute inset-y-0.5 right-0 flex translate-x-0 items-center gap-1.5 rounded-r-lg pr-2 pl-6 to-sidebar-accent via-sidebar-accent bg-gradient-to-r from-transparent from-10% via-21%'
+			: 'pointer-events-none absolute inset-y-0.5 right-0 flex translate-x-full items-center gap-2 rounded-r-lg pr-2 pl-6 transition group-hover:pointer-events-auto group-hover:translate-0 to-sidebar-accent via-sidebar-accent bg-gradient-to-r from-transparent from-10% via-21%'
+	);
+
+	// Leave room on the right so the title truncates before the always-visible
+	// mobile action buttons instead of sliding underneath them.
+	const titleClass = $derived(
+		isMobile.current
+			? 'min-w-0 truncate rounded-lg py-2 pr-16 pl-3 whitespace-nowrap'
+			: 'min-w-0 truncate rounded-lg py-2 pr-4 pl-3 whitespace-nowrap'
+	);
 
 	async function togglePin(conversationId: string) {
 		if (!session.current?.session.token) return;
@@ -191,7 +210,7 @@
 									{ 'bg-sidebar-accent': isActive, 'group-hover:bg-sidebar-accent': !isActive }
 								)}
 							>
-								<p class="truncate rounded-lg py-2 pr-4 pl-3 whitespace-nowrap">
+								<p class={titleClass}>
 									{#if conversation.branched_from}
 										<Tooltip>
 											{#snippet trigger(tooltip)}
@@ -222,12 +241,8 @@
 										</div>
 									{/if}
 								</div>
-								<div
-									class={[
-										'pointer-events-none absolute inset-y-0.5 right-0 flex translate-x-full items-center gap-2 rounded-r-lg pr-2 pl-6 transition group-hover:pointer-events-auto group-hover:translate-0',
-										'to-sidebar-accent via-sidebar-accent bg-gradient-to-r from-transparent from-10% via-21% ',
-									]}
-								>
+							<div class={actionClass}>
+
 									<Tooltip>
 										{#snippet trigger(tooltip)}
 											<button

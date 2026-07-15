@@ -33,6 +33,7 @@
 		"@tailwindcss/vite": "^4.0.0",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.4",
+		"@vite-pwa/sveltekit": "^1.1.0",
 		"bits-ui": "^2.8.5",
 		"clsx": "^2.1.1",
 		"concurrently": "^9.1.2",
