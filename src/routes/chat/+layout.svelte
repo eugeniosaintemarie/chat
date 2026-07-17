@@ -533,7 +533,7 @@
 			</Tooltip>
 			<LightSwitch variant="ghost" class="size-10 md:size-8 [&>svg]:!size-5 md:[&>svg]:!size-4" />
 		</div>
-		<div class="relative h-[100svh]">
+		<div class="relative h-full">
 			<div bind:this={conversationList} class="h-full overflow-y-auto">
 				<div
 					class={cn('mx-auto flex max-w-3xl flex-col', {
