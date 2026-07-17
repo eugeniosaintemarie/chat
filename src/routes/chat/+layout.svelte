@@ -484,7 +484,8 @@
 			<!-- header - top left -->
 			<div
 				class={cn(
-					'bg-sidebar/50 fixed top-4 left-4 z-50 flex w-fit rounded-lg p-1 backdrop-blur-lg ',
+					'bg-sidebar/50 fixed top-2 left-2 z-50 flex w-fit rounded-lg p-2 backdrop-blur-lg md:top-4 md:left-4 md:p-1',
+					'pt-[calc(0.5rem+env(safe-area-inset-top))] md:pt-1',
 					{
 						'md:left-(--sidebar-width)': sidebarOpen,
 						'hidden md:flex': sidebarOpen,
@@ -493,8 +494,8 @@
 			>
 				<Tooltip>
 					{#snippet trigger(tooltip)}
-						<Sidebar.Trigger class="size-8" {...tooltip.trigger}>
-							<PanelLeftIcon />
+						<Sidebar.Trigger class="size-10 md:size-8" {...tooltip.trigger}>
+							<PanelLeftIcon class="!size-5 md:!size-4" />
 						</Sidebar.Trigger>
 					{/snippet}
 					Toggle Sidebar
@@ -504,9 +505,13 @@
 
 		<!-- header - top right -->
 		<div
-			class={cn('bg-sidebar/50 fixed top-4 right-4 z-50 flex rounded-lg p-1 backdrop-blur-lg ', {
-				'hidden md:flex': sidebarOpen,
-			})}
+			class={cn(
+				'bg-sidebar/50 fixed top-2 right-2 z-50 flex rounded-lg p-2 backdrop-blur-lg md:top-4 md:right-4 md:p-1',
+				'pt-[calc(0.5rem+env(safe-area-inset-top))] md:pt-1',
+				{
+					'hidden md:flex': sidebarOpen,
+				}
+			)}
 		>
 			{#if page.params.id && currentConversationQuery.data}
 				<ShareButton conversationId={page.params.id as Id<'conversations'>} />
@@ -517,16 +522,16 @@
 						onclick={openSearchModal}
 						variant="ghost"
 						size="icon"
-						class="size-8"
+						class="size-10 md:size-8"
 						{...tooltip.trigger}
 					>
-						<SearchIcon class="!size-4" />
+						<SearchIcon class="!size-5 md:!size-4" />
 						<span class="sr-only">Search</span>
 					</Button>
 				{/snippet}
 				Search
 			</Tooltip>
-			<LightSwitch variant="ghost" class="size-8" />
+			<LightSwitch variant="ghost" class="size-10 md:size-8 [&>svg]:!size-5 md:[&>svg]:!size-4" />
 		</div>
 		<div class="relative">
 			<div bind:this={conversationList} class="fill-device-height overflow-y-auto">
