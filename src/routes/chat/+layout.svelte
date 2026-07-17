@@ -566,7 +566,7 @@
 			</div>
 
 			<div
-				class="abs-x-center group absolute bottom-0 left-1/2 flex w-full max-w-3xl flex-col gap-1 px-2 pb-[env(safe-area-inset-bottom)]"
+				class="abs-x-center group absolute bottom-0 left-1/2 flex w-full max-w-3xl flex-col gap-1 px-2"
 				bind:this={textareaWrapper}
 			>
 				<div
@@ -577,7 +577,7 @@
 				>
 					<form
 						class={[
-							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 px-3 pt-3 pb-3 outline-8 dark:border-white/10',
+							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 px-3 pt-3 pb-3 pb-[env(safe-area-inset-bottom)] outline-8 dark:border-white/10',
 							'transition duration-200',
 							'outline-primary/10 group-focus-within:outline-primary/20',
 							'dark:outline-primary/1 dark:group-focus-within:outline-primary/10',
