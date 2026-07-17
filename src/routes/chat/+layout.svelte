@@ -533,8 +533,8 @@
 			</Tooltip>
 			<LightSwitch variant="ghost" class="size-10 md:size-8 [&>svg]:!size-5 md:[&>svg]:!size-4" />
 		</div>
-		<div class="relative">
-			<div bind:this={conversationList} class="fill-device-height overflow-y-auto">
+		<div class="relative h-[100svh]">
+			<div bind:this={conversationList} class="h-full overflow-y-auto">
 				<div
 					class={cn('mx-auto flex max-w-3xl flex-col', {
 						'pt-10': page.url.pathname !== '/chat',
@@ -566,14 +566,13 @@
 			</div>
 
 			<div
-				class="abs-x-center group absolute -bottom-px left-1/2 mt-auto flex w-full max-w-3xl flex-col gap-1"
+				class="abs-x-center group absolute inset-x-0 bottom-0 mx-auto mt-auto flex w-full max-w-3xl flex-col gap-1 px-2 pb-[env(safe-area-inset-bottom)]"
 				bind:this={textareaWrapper}
 			>
 				<div
 					class={[
 						'border-reflect bg-background/80 rounded-t-[20px] p-2 pb-0 backdrop-blur-lg',
 						'[--opacity:50%] group-focus-within:[--opacity:100%]',
-						'pb-[env(safe-area-inset-bottom)]',
 					]}
 				>
 					<form
