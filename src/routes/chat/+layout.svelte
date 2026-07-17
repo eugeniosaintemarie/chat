@@ -566,7 +566,7 @@
 			</div>
 
 			<div
-				class="abs-x-center group absolute inset-x-0 bottom-0 flex w-full max-w-3xl flex-col gap-1 px-2 pb-[env(safe-area-inset-bottom)]"
+				class="abs-x-center group absolute bottom-0 left-1/2 flex w-full max-w-3xl flex-col gap-1 px-2 pb-[env(safe-area-inset-bottom)]"
 				bind:this={textareaWrapper}
 			>
 				<div
