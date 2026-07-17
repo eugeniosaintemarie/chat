@@ -577,7 +577,7 @@
 				>
 					<form
 						class={[
-							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 pt-3 pb-3 outline-8 dark:border-white/10',
+							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 pt-3 pb-0 outline-8 dark:border-white/10',
 							'transition duration-200',
 							'outline-primary/10 group-focus-within:outline-primary/20',
 							'dark:outline-primary/1 dark:group-focus-within:outline-primary/10',
