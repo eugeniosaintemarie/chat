@@ -566,7 +566,7 @@
 			</div>
 
 			<div
-				class="abs-x-center group absolute inset-x-0 bottom-0 mx-auto mt-auto flex w-full max-w-3xl flex-col gap-1 px-2 pb-[env(safe-area-inset-bottom)]"
+				class="abs-x-center group absolute inset-x-0 bottom-0 flex w-full max-w-3xl flex-col gap-1 px-2 pb-[env(safe-area-inset-bottom)]"
 				bind:this={textareaWrapper}
 			>
 				<div
@@ -577,12 +577,12 @@
 				>
 					<form
 						class={[
-							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 pt-3 pb-3 outline-8 dark:border-white/10',
+							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 px-3 pt-3 pb-3 outline-8 dark:border-white/10',
 							'transition duration-200',
 							'outline-primary/10 group-focus-within:outline-primary/20',
 							'dark:outline-primary/1 dark:group-focus-within:outline-primary/10',
 						]}
-						style="box-shadow: rgba(0, 0, 0, 0.1) 0px 80px 50px 0px, rgba(0, 0, 0, 0.07) 0px 50px 30px 0px, rgba(0, 0, 0, 0.06) 0px 30px 15px 0px, rgba(0, 0, 0, 0.04) 0px 15px 8px, rgba(0, 0, 0, 0.04) 0px 6px 4px, rgba(0, 0, 0, 0.02) 0px 2px 2px;"
+						style="box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 0px 0px;"
 						onsubmit={(e) => {
 							e.preventDefault();
 							handleSubmit();
