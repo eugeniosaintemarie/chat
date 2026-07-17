@@ -135,7 +135,7 @@
 </script>
 
 <Sidebar.Sidebar class="flex flex-col overflow-clip p-2">
-	<div class="flex place-items-center justify-between py-2">
+	<div class="flex place-items-center justify-between pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2">
 		<div>
 			<Tooltip>
 				{#snippet trigger(tooltip)}
