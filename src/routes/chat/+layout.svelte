@@ -571,7 +571,7 @@
 			>
 				<div
 					class={[
-						'border-reflect bg-background/80 rounded-t-[20px] p-2 pb-0 backdrop-blur-lg',
+						'border-reflect bg-background/80 rounded-t-[20px] p-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg',
 						'[--opacity:50%] group-focus-within:[--opacity:100%]',
 					]}
 				>
