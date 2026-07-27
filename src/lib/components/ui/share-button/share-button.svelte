@@ -146,7 +146,7 @@
 >
 	<div class="space-y-4">
 		<div class="flex items-center justify-between">
-			<h3 class="text-sm font-medium">Share conversation</h3>
+			<h3 class="text-sm font-medium">Share</h3>
 			<Button onclick={() => (open = false)} variant="ghost" size="icon" class="size-6">
 				<XIcon class="size-4" />
 			</Button>
@@ -155,7 +155,7 @@
 		<div class="flex items-center justify-between">
 			<div class="space-y-1">
 				<p class="text-sm font-medium">Public sharing</p>
-				<p class="text-muted-foreground text-xs">Anyone with the link can view this conversation</p>
+				<!--<p class="text-muted-foreground text-xs"></p>-->
 			</div>
 			<Switch bind:value={() => isPublic, (v) => toggleSharing(v)} disabled={isToggling} />
 		</div>
@@ -185,9 +185,8 @@
 				</a>
 			</div>
 		{:else}
-			<p class="text-muted-foreground text-xs">
-				Enable public sharing to generate a shareable link
-			</p>
+			<!--<p class="text-muted-foreground text-xs">
+			</p>-->
 		{/if}
 
 		<div class="border-border border-t pt-3">
@@ -202,15 +201,14 @@
 					<div in:scale={{ duration: 200, start: 0.8 }}>
 						<CheckIcon class="size-4" />
 					</div>
-					Copied as Markdown!
+					Copied as Markdown
 				{:else}
 					<FileTextIcon class="size-4" />
-					Copy as Markdown (Obsidian)
+					Copy as Markdown
 				{/if}
 			</Button>
-			<p class="text-muted-foreground text-xs mt-1.5">
-				Copy the full conversation as a markdown file with YAML frontmatter, ready to paste into Obsidian.
-			</p>
+			<!--<p class="text-muted-foreground text-xs mt-1.5">
+			</p>-->
 		</div>
 	</div>
 </div>
