@@ -565,22 +565,16 @@
 			class="abs-x-center group absolute bottom-0 left-1/2 mt-auto flex w-full max-w-3xl flex-col gap-1"
 			bind:this={textareaWrapper}
 		>
-				<div
-					class={[
-						'bg-card/90 rounded-t-[20px] px-2 pt-1 backdrop-blur-xl',
-						'[--opacity:50%] group-focus-within:[--opacity:100%]',
-					]}
+			<div
+				class="bg-background bg-noise rounded-t-[20px] px-2 pt-1"
+			>
+				<form
+					class="bg-background bg-noise text-foreground relative flex w-full flex-col items-stretch gap-2 rounded-t-xl pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))]"
+					onsubmit={(e) => {
+						e.preventDefault();
+						handleSubmit();
+					}}
 				>
-					<form
-						class={[
-							'bg-card/90 text-foreground relative flex w-full flex-col items-stretch gap-2 rounded-t-xl pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))] backdrop-blur-xl',
-							'transition duration-200',
-						]}
-						onsubmit={(e) => {
-							e.preventDefault();
-							handleSubmit();
-						}}
-					>
 						{#if error}
 							<div
 								in:fade={{ duration: 150 }}
@@ -741,7 +735,7 @@
 										{#if currentModelSupportsReasoning}
 											<DropdownMenu.Root>
 											<DropdownMenu.Trigger
-												class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors disabled:opacity-50"
+												class="hover:bg-accent/20 flex items-center justify-center rounded-full p-1.5 text-xs transition-colors disabled:opacity-50"
 											>
 												<BrainIcon class={cn('!size-4', reasoningColor)} />
 											</DropdownMenu.Trigger>
