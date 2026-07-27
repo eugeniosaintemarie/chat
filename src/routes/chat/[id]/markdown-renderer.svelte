@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { sanitizeHtml } from '$lib/utils/markdown-it';
+	import { sanitizeHtml } from '$lib/utils/sanitize';
 	import { Markdown } from '$lib/utils/markdown.svelte';
 
 	type Props = {

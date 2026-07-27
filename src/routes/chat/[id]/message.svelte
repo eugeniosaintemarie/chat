@@ -6,7 +6,7 @@
 	import '../../../markdown.css';
 	import MarkdownRenderer from './markdown-renderer.svelte';
 	import { ImageModal } from '$lib/components/ui/image-modal';
-	import { sanitizeHtml } from '$lib/utils/markdown-it';
+	import { sanitizeHtml } from '$lib/utils/sanitize';
 	import { on } from 'svelte/events';
 	import { isHtmlElement } from '$lib/utils/is';
 	import { Button } from '$lib/components/ui/button';
