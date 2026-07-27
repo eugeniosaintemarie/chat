@@ -69,12 +69,12 @@
 	});
 
 	const currentConversationQuery = useCachedQuery(api.conversations.getById, () => ({
-		conversation_id: page.params.id as Id<'conversations'>,
+		conversation_id: (page.params.id ?? '') as Id<'conversations'>,
 		session_token: session.current?.session.token ?? '',
 	}));
 
 	const isGenerating = $derived(
-		Boolean(currentConversationQuery.data?.generating)
+		Boolean(page.params.id && currentConversationQuery.data?.generating)
 	);
 
 	async function stopGeneration() {
