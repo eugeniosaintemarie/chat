@@ -155,7 +155,7 @@
 			{#snippet trigger(tooltip)}
 				<a
 					href="/chat"
-					class="border-reflect button-reflect bg-primary/20 hover:bg-primary/50 font-fake-proxima w-full rounded-lg px-4 py-2 text-center text-sm tracking-[-0.005em] duration-200"
+					class="bg-card/90 hover:bg-card font-fake-proxima w-full rounded-lg px-4 py-2 text-center text-sm tracking-[-0.005em] backdrop-blur-xl transition duration-200"
 					{...tooltip.trigger}
 					onclick={controls.closeMobile}
 					style="font-variation-settings: 'wght' 750"

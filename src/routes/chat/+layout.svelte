@@ -567,18 +567,15 @@
 		>
 				<div
 					class={[
-						'border-reflect bg-background/80 rounded-t-[20px] px-2 pt-1 backdrop-blur-lg',
+						'bg-card/90 rounded-t-[20px] px-2 pt-1 backdrop-blur-xl',
 						'[--opacity:50%] group-focus-within:[--opacity:100%]',
 					]}
 				>
 					<form
 						class={[
-							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))] outline-8 dark:border-white/10',
+							'bg-card/90 text-foreground relative flex w-full flex-col items-stretch gap-2 rounded-t-xl pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))] backdrop-blur-xl',
 							'transition duration-200',
-							'outline-primary/10 group-focus-within:outline-primary/20',
-							'dark:outline-primary/1 dark:group-focus-within:outline-primary/10',
 						]}
-						style="box-shadow: rgba(0, 0, 0, 0.1) 0px 80px 50px 0px, rgba(0, 0, 0, 0.07) 0px 50px 30px 0px, rgba(0, 0, 0, 0.06) 0px 30px 15px 0px, rgba(0, 0, 0, 0.04) 0px 15px 8px, rgba(0, 0, 0, 0.04) 0px 6px 4px, rgba(0, 0, 0, 0.02) 0px 2px 2px;"
 						onsubmit={(e) => {
 							e.preventDefault();
 							handleSubmit();
