@@ -566,10 +566,10 @@
 			bind:this={textareaWrapper}
 		>
 			<div
-				class="bg-background bg-noise rounded-t-[20px] px-2 pt-1"
+				class="bg-card/50 rounded-t-[20px] px-2 pt-1"
 			>
 				<form
-					class="bg-background bg-noise text-foreground relative flex w-full flex-col items-stretch gap-2 rounded-t-xl pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))]"
+					class="bg-card/50 text-foreground relative flex w-full flex-col items-stretch gap-2 rounded-t-xl pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))]"
 					onsubmit={(e) => {
 						e.preventDefault();
 						handleSubmit();
