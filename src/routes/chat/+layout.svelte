@@ -7,7 +7,6 @@
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ImageModal } from '$lib/components/ui/image-modal';
-	import { LightSwitch } from '$lib/components/ui/light-switch/index.js';
 	import { ShareButton } from '$lib/components/ui/share-button';
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
@@ -529,7 +528,6 @@
 				{/snippet}
 				Search
 			</Tooltip>
-			<LightSwitch variant="ghost" class="size-10 md:size-8 [&>svg]:!size-5 md:[&>svg]:!size-4" />
 		</div>
 		<div class="relative">
 			<div bind:this={conversationList} class="fill-device-height overflow-y-auto">
@@ -569,7 +567,7 @@
 		>
 				<div
 					class={[
-						'border-reflect bg-background/80 rounded-t-[20px] px-2 pt-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg',
+						'border-reflect bg-background/80 rounded-t-[20px] px-2 pt-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg',
 						'[--opacity:50%] group-focus-within:[--opacity:100%]',
 					]}
 				>
@@ -719,7 +717,7 @@
 									{@attach autosize.attachment}
 								></textarea>
 							</div>
-							<div class="mt-2 flex w-full flex-row-reverse justify-between px-2">
+							<div class="flex w-full flex-row-reverse justify-between px-2">
 								<div class="-mt-0.5 -mr-0.5 flex items-center justify-center gap-2">
 									<Tooltip placement="top">
 										{#snippet trigger(tooltip)}

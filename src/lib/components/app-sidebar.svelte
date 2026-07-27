@@ -6,6 +6,7 @@
 	import { useCachedQuery } from '$lib/cache/cached-query.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import { useSidebarControls } from '$lib/components/ui/sidebar';
+	import { LightSwitch } from '$lib/components/ui/light-switch/index.js';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
 	import { session } from '$lib/state/session.svelte';
@@ -147,7 +148,7 @@
 			</Tooltip>
 		</div>
 		<span class="text-center font-serif text-xl font-semibold">chat</span>
-		<div class="size-9"></div>
+		<LightSwitch variant="ghost" class="size-9" />
 	</div>
 	<div class="mt-1 flex w-full flex-col gap-2 px-2">
 		<Tooltip>
