@@ -160,10 +160,10 @@
 					onclick={controls.closeMobile}
 					style="font-variation-settings: 'wght' 750"
 				>
-					New Chat
+					New chat
 				</a>
 			{/snippet}
-			New Chat
+			New chat
 		</Tooltip>
 		<!--
 		<Tooltip>
