@@ -484,8 +484,8 @@
 			<!-- header - top left -->
 			<div
 				class={cn(
-					'bg-sidebar/50 fixed top-2 left-2 z-50 flex w-fit rounded-lg p-2 backdrop-blur-lg md:top-4 md:left-4 md:p-1',
-					'pt-[calc(0.5rem+env(safe-area-inset-top))] md:pt-1',
+					'bg-card/90 border-border/50 fixed top-2 left-2 z-50 flex w-fit rounded-full border p-2 shadow-lg backdrop-blur-xl md:top-4 md:left-4 md:p-1.5',
+					'pt-[calc(0.5rem+env(safe-area-inset-top))] md:pt-1.5',
 					{
 						'md:left-(--sidebar-width)': sidebarOpen,
 						'hidden md:flex': sidebarOpen,
@@ -506,8 +506,8 @@
 		<!-- header - top right -->
 		<div
 			class={cn(
-				'bg-sidebar/50 fixed top-2 right-2 z-50 flex rounded-lg p-2 backdrop-blur-lg md:top-4 md:right-4 md:p-1',
-				'pt-[calc(0.5rem+env(safe-area-inset-top))] md:pt-1',
+				'bg-card/90 border-border/50 fixed top-2 right-2 z-50 flex items-center gap-1 rounded-full border p-2 shadow-lg backdrop-blur-xl md:top-4 md:right-4 md:p-1.5',
+				'pt-[calc(0.5rem+env(safe-area-inset-top))] md:pt-1.5',
 				{
 					'hidden md:flex': sidebarOpen,
 				}

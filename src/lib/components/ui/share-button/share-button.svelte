@@ -16,6 +16,7 @@
 	import ExternalLinkIcon from '~icons/lucide/external-link';
 	import ShareIcon from '~icons/lucide/share';
 	import XIcon from '~icons/lucide/x';
+	import FileTextIcon from '~icons/lucide/file-text';
 
 	const client = useConvexClient();
 	const clipboard = new UseClipboard();
@@ -49,6 +50,54 @@
 		}
 		return '';
 	});
+
+	const messagesQuery = useCachedQuery(api.messages.getAllFromConversation, () => ({
+		conversation_id: conversationId as string,
+		session_token: session.current?.session.token ?? '',
+	}));
+
+	const conversationTitle = $derived(conversationQuery.data?.title ?? 'Untitled Conversation');
+
+	function formatMarkdownForObsidian(): string {
+		const messages = messagesQuery.data ?? [];
+		const lines: string[] = [];
+
+		lines.push(`---`);
+		lines.push(`title: "${conversationTitle}"`);
+		lines.push(`date: ${new Date().toISOString().split('T')[0]}`);
+		lines.push(`source: chat export`);
+		lines.push(`---`);
+		lines.push(``);
+		lines.push(`# ${conversationTitle}`);
+		lines.push(``);
+
+		for (const msg of messages) {
+			if (msg.role === 'system') continue;
+
+			const roleLabel = msg.role === 'user' ? '**You**' : '**Assistant**';
+			const model = msg.model_id ? ` (${msg.model_id})` : '';
+			const timestamp = msg._creationTime
+				? new Date(msg._creationTime).toLocaleString()
+				: '';
+
+			lines.push(`## ${roleLabel}${model}`);
+			if (timestamp) {
+				lines.push(`*${timestamp}*`);
+				lines.push(``);
+			}
+			lines.push(msg.content);
+			lines.push(``);
+			lines.push(`---`);
+			lines.push(``);
+		}
+
+		return lines.join('\n');
+	}
+
+	function copyMarkdown() {
+		const md = formatMarkdownForObsidian();
+		clipboard.copy(md);
+	}
 
 	async function toggleSharing(newValue: boolean) {
 		if (!session.current?.session.token) return;
@@ -140,5 +189,28 @@
 				Enable public sharing to generate a shareable link
 			</p>
 		{/if}
+
+		<div class="border-border border-t pt-3">
+			<p class="text-sm font-medium mb-2">Export</p>
+			<Button
+				onclick={copyMarkdown}
+				variant="outline"
+				size="sm"
+				class="w-full justify-start gap-2"
+			>
+				{#if clipboard.status === 'success'}
+					<div in:scale={{ duration: 200, start: 0.8 }}>
+						<CheckIcon class="size-4" />
+					</div>
+					Copied as Markdown!
+				{:else}
+					<FileTextIcon class="size-4" />
+					Copy as Markdown (Obsidian)
+				{/if}
+			</Button>
+			<p class="text-muted-foreground text-xs mt-1.5">
+				Copy the full conversation as a markdown file with YAML frontmatter, ready to paste into Obsidian.
+			</p>
+		</div>
 	</div>
 </div>
