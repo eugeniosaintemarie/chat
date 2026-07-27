@@ -566,12 +566,12 @@
 			</div>
 
 		<div
-			class="abs-x-center group absolute bottom-0 left-1/2 mt-auto flex w-full max-w-3xl flex-col gap-1"
+			class="abs-x-center group absolute bottom-[env(safe-area-inset-bottom)] left-1/2 mt-auto flex w-full max-w-3xl flex-col gap-1"
 			bind:this={textareaWrapper}
 		>
 				<div
 					class={[
-						'border-reflect bg-background/80 rounded-t-[20px] p-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg',
+						'border-reflect bg-background/80 rounded-t-[20px] px-2 pt-2 pb-2 backdrop-blur-lg',
 						'[--opacity:50%] group-focus-within:[--opacity:100%]',
 					]}
 				>
@@ -721,7 +721,7 @@
 									{@attach autosize.attachment}
 								></textarea>
 							</div>
-							<div class="mt-2 -mb-px flex w-full flex-row-reverse justify-between px-2">
+							<div class="mt-2 flex w-full flex-row-reverse justify-between px-2">
 								<div class="-mt-0.5 -mr-0.5 flex items-center justify-center gap-2">
 									<Tooltip placement="top">
 										{#snippet trigger(tooltip)}
