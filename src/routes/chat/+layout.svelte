@@ -74,7 +74,7 @@
 	}));
 
 	const isGenerating = $derived(
-		Boolean(currentConversationQuery.data?.generating) || currentConversationQuery.isLoading
+		Boolean(currentConversationQuery.data?.generating)
 	);
 
 	async function stopGeneration() {
