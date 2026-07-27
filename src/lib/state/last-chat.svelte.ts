@@ -1,14 +1,32 @@
+import { browser } from '$app/environment';
 import { Context } from 'runed';
 
+const STORAGE_KEY = 'last-chat';
+
 class LastChatState {
-	constructor(readonly opts: { lastChat: string | null }) {}
+	#lastChat: string | null;
+
+	constructor(readonly opts: { lastChat: string | null }) {
+		this.#lastChat = opts.lastChat;
+		if (browser) {
+			const saved = localStorage.getItem(STORAGE_KEY);
+			if (saved) this.#lastChat = saved;
+		}
+	}
 
 	get current() {
-		return this.opts.lastChat;
+		return this.#lastChat;
 	}
 
 	set current(chat: string | null) {
-		this.opts.lastChat = chat;
+		this.#lastChat = chat;
+		if (browser) {
+			if (chat) {
+				localStorage.setItem(STORAGE_KEY, chat);
+			} else {
+				localStorage.removeItem(STORAGE_KEY);
+			}
+		}
 	}
 }
 

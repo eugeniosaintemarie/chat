@@ -20,6 +20,8 @@ export default defineConfig({
 			injectRegister: 'auto',
 			devOptions: { enabled: false },
 			workbox: {
+				skipWaiting: true,
+				clientsClaim: true,
 				globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json}'],
 				globIgnores: ['**/og.png'],
 				maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
@@ -34,6 +36,27 @@ export default defineConfig({
 						options: {
 							cacheName: 'model-favicons',
 							expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
+							cacheableResponse: { statuses: [0, 200] },
+						},
+					},
+					{
+						urlPattern: ({ request }) => request.mode === 'navigate',
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'pages-cache',
+							networkTimeoutSeconds: 3,
+							expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
+							cacheableResponse: { statuses: [0, 200] },
+						},
+					},
+					{
+						urlPattern: ({ url }) =>
+							url.hostname.includes('convex') || url.hostname.includes('convex.cloud'),
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'convex-api',
+							networkTimeoutSeconds: 3,
+							expiration: { maxEntries: 200, maxAgeSeconds: 60 * 5 },
 							cacheableResponse: { statuses: [0, 200] },
 						},
 					},

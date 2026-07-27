@@ -16,12 +16,19 @@
 	const lastChat = setupLastChat();
 	models.init();
 
+	const convexOrigin = $derived(new URL(PUBLIC_CONVEX_URL).origin);
+
 	$effect(() => {
 		if (page.url.pathname.startsWith('/chat')) {
 			lastChat.current = page.params?.id ?? null;
 		}
 	});
 </script>
+
+<svelte:head>
+	<link rel="preconnect" href={convexOrigin} crossorigin />
+	<link rel="dns-prefetch" href={convexOrigin} />
+</svelte:head>
 
 <MetaTags
 	title="chat"
