@@ -567,13 +567,13 @@
 		>
 				<div
 					class={[
-						'border-reflect bg-background/80 rounded-t-[20px] px-2 pt-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg',
+						'border-reflect bg-background/80 rounded-t-[20px] px-2 pt-1 backdrop-blur-lg',
 						'[--opacity:50%] group-focus-within:[--opacity:100%]',
 					]}
 				>
 					<form
 						class={[
-							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 pt-3 pb-0 outline-8 dark:border-white/10',
+							'bg-background/50 text-foreground dark:bg-secondary/20 relative flex w-full flex-col items-stretch gap-2 rounded-t-xl border border-b-0 border-white/70 pt-3 pb-[env(safe-area-inset-bottom)] outline-8 dark:border-white/10',
 							'transition duration-200',
 							'outline-primary/10 group-focus-within:outline-primary/20',
 							'dark:outline-primary/1 dark:group-focus-within:outline-primary/10',
