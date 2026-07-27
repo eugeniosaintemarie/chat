@@ -566,10 +566,10 @@
 			bind:this={textareaWrapper}
 		>
 			<div
-				class="bg-card/50 rounded-t-[20px] px-2 pt-1"
+				class="bg-card rounded-t-[20px] px-2 pt-1"
 			>
 				<form
-					class="bg-card/50 text-foreground relative flex w-full flex-col items-stretch gap-2 rounded-t-xl pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))]"
+					class="bg-card text-foreground relative flex w-full flex-col items-stretch gap-2 rounded-t-xl pt-3 pb-[max(0.25rem,calc(env(safe-area-inset-bottom)*0.5))]"
 					onsubmit={(e) => {
 						e.preventDefault();
 						handleSubmit();
@@ -667,7 +667,7 @@
 									{...pick(popover.trigger, ['id', 'style', 'onfocusout', 'onfocus'])}
 									bind:this={textarea}
 									disabled={textareaDisabled}
-									class="text-foreground placeholder:text-muted-foreground/60 max-h-64 min-h-[60px] w-full resize-none !overflow-y-auto rounded-xl bg-card/50 px-3 text-base leading-6 outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-[80px]"
+									class="text-foreground placeholder:text-muted-foreground/60 max-h-64 min-h-[60px] w-full resize-none !overflow-y-auto rounded-xl bg-card px-3 text-base leading-6 outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-[80px]"
 									placeholder={isGenerating
 										? 'Generating response...'
 										: 'Type your message here, tag rules with @'}
@@ -708,7 +708,7 @@
 									{@attach autosize.attachment}
 								></textarea>
 							</div>
-							<div class="flex w-full flex-row-reverse justify-between rounded-b-xl bg-card/50 px-2">
+							<div class="flex w-full flex-row-reverse justify-between rounded-b-xl bg-card px-2">
 								<div class="-mt-0.5 -mr-0.5 flex items-center justify-center gap-2">
 									<Tooltip placement="top">
 										{#snippet trigger(tooltip)}
