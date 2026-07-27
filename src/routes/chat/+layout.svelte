@@ -708,7 +708,7 @@
 									{@attach autosize.attachment}
 								></textarea>
 							</div>
-							<div class="flex w-full flex-row-reverse justify-between px-2">
+							<div class="flex w-full flex-row-reverse justify-between rounded-b-xl bg-card/50 px-2">
 								<div class="-mt-0.5 -mr-0.5 flex items-center justify-center gap-2">
 									<Tooltip placement="top">
 										{#snippet trigger(tooltip)}
@@ -760,8 +760,8 @@
 												<button
 													{...tooltip.trigger}
 													type="button"
-													class="border-border hover:bg-accent/20 flex items-center justify-center rounded-full border p-1.5 text-xs transition-colors"
-													onclick={() => combinedFileInput?.click()}
+												class="hover:bg-accent/20 flex items-center justify-center rounded-full p-1.5 text-xs transition-colors"
+												onclick={() => combinedFileInput?.click()}
 												>
 													{#if isUploading}
 														<div
@@ -781,7 +781,7 @@
 										{#if session.current !== null && message.current.trim() !== ''}
 											<button
 												type="button"
-												class="border-border hover:bg-accent/20 flex items-center gap-1 rounded-full border px-1 py-1 text-xs transition-colors disabled:opacity-50 sm:px-2"
+												class="hover:bg-accent/20 flex items-center gap-1 rounded-full px-1 py-1 text-xs transition-colors disabled:opacity-50 sm:px-2"
 												onclick={() => {
 													if (enhancingPrompt) {
 														abortEnhance?.abort();
