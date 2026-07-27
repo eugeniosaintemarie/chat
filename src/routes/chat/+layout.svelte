@@ -565,10 +565,10 @@
 				</Tooltip>
 			</div>
 
-			<div
-				class="abs-x-center group absolute -bottom-px left-1/2 mt-auto flex w-full max-w-3xl flex-col gap-1"
-				bind:this={textareaWrapper}
-			>
+		<div
+			class="abs-x-center group absolute bottom-0 left-1/2 mt-auto flex w-full max-w-3xl flex-col gap-1"
+			bind:this={textareaWrapper}
+		>
 				<div
 					class={[
 						'border-reflect bg-background/80 rounded-t-[20px] p-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg',
