@@ -154,7 +154,7 @@
 
 		<div class="flex items-center justify-between">
 			<div class="space-y-1">
-				<p class="text-sm font-medium">Public sharing</p>
+				<p class="text-sm font-medium">URL</p>
 				<!--<p class="text-muted-foreground text-xs"></p>-->
 			</div>
 			<Switch bind:value={() => isPublic, (v) => toggleSharing(v)} disabled={isToggling} />
@@ -162,7 +162,7 @@
 
 		{#if isPublic}
 			<div class="space-y-2">
-				<p class="text-sm font-medium">Share link</p>
+				<!--<p class="text-sm font-medium"></p>-->
 				<div class="border-input bg-background flex items-center rounded-xl border px-3 py-2">
 					<span class="text-muted-foreground flex-1 truncate text-sm">{shareUrl}</span>
 					<Button onclick={copyShareUrl} variant="ghost" size="icon" class="ml-2 size-6 shrink-0">
@@ -175,14 +175,14 @@
 						{/if}
 					</Button>
 				</div>
-				<a
+				<!--<a
 					href={shareUrl}
 					target="_blank"
 					rel="noopener noreferrer"
 					class="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
 				>
 					Open in new tab <ExternalLinkIcon class="size-3" />
-				</a>
+				</a>-->
 			</div>
 		{:else}
 			<!--<p class="text-muted-foreground text-xs">
