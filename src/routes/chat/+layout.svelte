@@ -667,7 +667,7 @@
 									{...pick(popover.trigger, ['id', 'style', 'onfocusout', 'onfocus'])}
 									bind:this={textarea}
 									disabled={textareaDisabled}
-									class="text-foreground placeholder:text-muted-foreground/60 max-h-64 min-h-[60px] w-full resize-none !overflow-y-auto bg-transparent px-3 text-base leading-6 outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-[80px]"
+									class="text-foreground placeholder:text-muted-foreground/60 max-h-64 min-h-[60px] w-full resize-none !overflow-y-auto rounded-xl bg-card/50 px-3 text-base leading-6 outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-[80px]"
 									placeholder={isGenerating
 										? 'Generating response...'
 										: 'Type your message here, tag rules with @'}
