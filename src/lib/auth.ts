@@ -41,9 +41,11 @@ export const auth = betterAuth({
 	},
 	plugins: [sveltekitCookies(getRequestEvent)],
 	session: {
+		expiresIn: 60 * 60 * 24 * 365, // 1 year in seconds
+		updateAge: 60 * 60 * 24, // Refresh session token every 24 hours
 		cookieCache: {
 			enabled: true,
-			maxAge: 5 * 60, // Cache duration in seconds
+			maxAge: 60 * 60 * 24 * 365, // 1 year - keeps session cookie alive
 		},
 	},
 });
