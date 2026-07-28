@@ -49,6 +49,7 @@ This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway*
 - **Light / dark theme** with system preference detection (mode-watcher)
 - **Branded app icon & favicon** (PNG favicon + Apple touch icon) served from `static/`
 - **GitHub OAuth login** — sign in with your GitHub account to sync conversations
+- **Persistent sessions** — sessions last 1 year and auto-renew every 24 hours; invalidated on new deploys (when `BETTER_AUTH_SECRET` changes) or manual cache clear
 
 ## 🛠️ Tech Stack
 
