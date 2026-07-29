@@ -16,16 +16,16 @@
 
 ## ℹ️ About
 
-**chat** is an open-source alternative/clone of [T3 Chat](https://t3.chat/), originally built for [Theo's cloneathon](https://x.com/theo/status/1931515264497254402).
+**chat** is an open-source alternative/clone of [T3 Chat](https://t3.chat/), originally built for [Theo's cloneathon](https://x.com/theo/status/1931515264497254402). This project is an adaptation of [thom-chat](https://github.com/TGlide/thom-chat) by [Thomas G. Lopes](https://github.com/tglide).
 
-This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway** (an OpenAI-compatible endpoint) plus the **OpenRouter** catalog, and ships with a curated set of frontier **reasoning models**. It is fully self-hostable: bring your own Convex instance, GitHub OAuth app, and model-gateway key.
+This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway** (an OpenAI-compatible endpoint) with **OpenRouter** as a fallback key when `OPENCODE_API_KEY` is not set. It ships with a curated set of frontier **reasoning models**. It is fully self-hostable: bring your own Convex instance, GitHub OAuth app, and model-gateway key.
 
 > While it is a clone, the feature set is not identical to T3 Chat — this is a finished, personal portfolio build with a focused, polished feature set.
 
 ## ✨ Features
 
 ### 🤖 AI & Models
-- **Two model sources** — the curated OpenCode Go gateway (including a free `zen` tier) and the full OpenRouter catalog, aggregated at runtime
+- **Curated model set** — powered by the OpenCode Go gateway (including a free `zen` tier), with OpenRouter as a fallback key when `OPENCODE_API_KEY` is not set
 - **Live pricing tiers** — the model picker shows a `$` / `$$` / `$$$` cost badge (computed from live `models.dev` pricing) and an 👁 vision indicator next to each model name, so you can pick by price and capability at a glance
 - **Live reasoning display** — watch the model "think" as it streams (`reasoning_content` / `reasoning`)
 - **Adjustable reasoning effort** — pick high / medium / low reasoning depth per chat
@@ -69,7 +69,7 @@ This version is wired to the **[OpenCode Go](https://opencode.ai) model gateway*
 **Backend & Infra**
 - 🔧 Convex (database + serverless functions)
 - 🔐 Better Auth (GitHub OAuth) via `@better-auth-kit/convex`
-- 🤖 OpenCode Go gateway + OpenRouter (OpenAI-compatible)
+- 🤖 OpenCode Go gateway (OpenAI-compatible, OpenRouter fallback)
 - 🗂 Model catalog sourced from [models.dev](https://models.dev)
 - ▲ Deployed on Vercel (`@sveltejs/adapter-vercel`)
 
@@ -146,10 +146,10 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ## 🙏 Acknowledgments
 
+- Adapted from [thom-chat](https://github.com/TGlide/thom-chat) by [Thomas G. Lopes](https://github.com/tglide) — originally created for [Theo's cloneathon](https://x.com/theo/status/1931515264497254402)
 - Inspired by [T3 Chat](https://t3.chat/)
-- Originally created by [Thomas G. Lopes](https://github.com/tglide) and [Aidan Blesar](https://github.com/ieedan)
 - Built with [SvelteKit](https://kit.svelte.dev/), [Convex](https://convex.dev/), and [Better Auth](https://better-auth.com/)
-- Models served via [OpenCode](https://opencode.ai/) and [OpenRouter](https://openrouter.ai/)
+- Models served via [OpenCode](https://opencode.ai/) (primary) and [OpenRouter](https://openrouter.ai/) (fallback)
 
 ---
 
