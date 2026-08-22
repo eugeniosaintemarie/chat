@@ -13,8 +13,8 @@ export function isFreeModel(modelId: string): boolean {
 	return modelId.endsWith('-free');
 }
 
-export function resolveOpenCodeBaseUrl(modelId: string): string {
-	return isFreeModel(modelId) ? OPENCODE_ZEN_BASE_URL : OPENCODE_GO_BASE_URL;
+export function resolveOpenCodeBaseUrl(_modelId: string): string {
+	return OPENCODE_GO_BASE_URL;
 }
 
 interface ModelsDevModel {
