@@ -121,6 +121,57 @@
 			showReasoning = true;
 		}
 	});
+
+	let reasoningEnd = $state<HTMLSpanElement>();
+	let responseBody = $state<HTMLDivElement>();
+
+	// Lengths seen so far, initialized with the mounted values so historical
+	// messages never trigger the "new content" behaviors below.
+	let prevReasoningLen = $state(message.reasoning?.length ?? 0);
+	let prevContentLen = $state(message.content.length);
+
+	// Nearest scrollable ancestor (the chat conversation list).
+	function findScrollParent(el: HTMLElement): HTMLElement | null {
+		let parent = el.parentElement;
+		while (parent) {
+			if (parent.scrollHeight > parent.clientHeight + 1) return parent;
+			parent = parent.parentElement;
+		}
+		return null;
+	}
+
+	function isNearBottom(el: HTMLElement, threshold = 160): boolean {
+		const scroller = findScrollParent(el);
+		if (!scroller) return true;
+		return scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < threshold;
+	}
+
+	// While the reasoning panel is expanded and new reasoning tokens stream
+	// in, keep the view pinned to the end — but only if the user was already
+	// near the bottom, so scrolling up to read is never hijacked.
+	$effect(() => {
+		const len = message.reasoning?.length ?? 0;
+		const grew = len > prevReasoningLen;
+		prevReasoningLen = len;
+
+		const anchor = reasoningEnd;
+		if (grew && showReasoning && anchor && anchor.isConnected && isNearBottom(anchor)) {
+			anchor.scrollIntoView({ block: 'end' });
+		}
+	});
+
+	// The moment the actual answer starts arriving, jump to the beginning of
+	// the response (again, only when the user was following the stream).
+	$effect(() => {
+		const len = message.content.length;
+		const isNew = prevContentLen === 0 && len > 0;
+		prevContentLen = len;
+
+		const target = responseBody;
+		if (isNew && target && target.isConnected && isNearBottom(target)) {
+			target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	});
 </script>
 
 {#if message.role !== 'system' && !(message.role === 'assistant' && message.content.length === 0 && message.reasoning?.length === 0 && !message.error)}
@@ -176,11 +227,12 @@
 				{#if showReasoning}
 					<div class="text-foreground/60 bg-popover relative rounded-lg p-2 text-xs">
 						{message.reasoning}
+						<span bind:this={reasoningEnd} aria-hidden="true"></span>
 					</div>
 				{/if}
 			</div>
 		{/if}
-		<div class={style({ role: message.role })}>
+		<div bind:this={responseBody} class={cn(style({ role: message.role }), 'scroll-mt-20')}>
 			{#if message.error}
 				<div class="text-destructive">
 					<pre class="!bg-sidebar"><code>{message.error}</code></pre>
