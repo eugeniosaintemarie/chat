@@ -7,7 +7,7 @@ import { ConvexHttpClient } from 'convex/browser';
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { api } from '$lib/backend/convex/_generated/api';
 import { parseMessageForRules } from '$lib/utils/rules';
-import { resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
+import { openCodeGoHeaders, resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
 
 const API_KEY = env.OPENCODE_API_KEY || env.OPENROUTER_FREE_KEY || '';
 const ENHANCE_MODEL = 'minimax-m2.5';
@@ -92,20 +92,27 @@ ${args.prompt}
 	// All OpenCode Go models are reasoning models, so the answer only appears in
 	// `content` *after* the reasoning tokens. A non-streaming call returns an
 	// empty `content`, so we stream and accumulate `content` with low effort.
+	// The Go gateway requires `x-opencode-session` on every request — here we
+	// use the logged-in user's id as the stable session value.
+	const sessionId = session.user.id;
 	const openai = new OpenAI({
 		baseURL: resolveOpenCodeBaseUrl(ENHANCE_MODEL),
 		apiKey: API_KEY,
+		defaultHeaders: openCodeGoHeaders(sessionId),
 	});
 
 	const enhanceResult = await ResultAsync.fromPromise(
-		openai.chat.completions.create({
-			model: ENHANCE_MODEL,
-			messages: [{ role: 'user', content: enhancePrompt }],
-			temperature: 0.5,
-			max_tokens: 1024,
-			stream: true,
-			reasoning_effort: 'low',
-		}),
+		openai.chat.completions.create(
+			{
+				model: ENHANCE_MODEL,
+				messages: [{ role: 'user', content: enhancePrompt }],
+				temperature: 0.5,
+				max_tokens: 1024,
+				stream: true,
+				reasoning_effort: 'low',
+			},
+			{ headers: openCodeGoHeaders(sessionId) }
+		),
 		(e) => `Enhance prompt API call failed: ${e}`
 	);
 

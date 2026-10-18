@@ -1,6 +1,6 @@
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 import { env } from '$env/dynamic/private';
-import { resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
+import { openCodeGoHeaders, resolveOpenCodeBaseUrl } from '$lib/backend/models/opencode-go';
 import { waitUntil } from '@vercel/functions';
 import { api } from '$lib/backend/convex/_generated/api';
 
@@ -128,6 +128,7 @@ If its a simple hi, just name it "Greeting" or something like that.
 	const openai = new OpenAI({
 		baseURL: resolveOpenCodeBaseUrl(TITLE_MODEL),
 		apiKey: actualKey,
+		defaultHeaders: openCodeGoHeaders(conversationId),
 	});
 
 	const titleResult = await ResultAsync.fromPromise(
@@ -139,7 +140,8 @@ If its a simple hi, just name it "Greeting" or something like that.
 				temperature: 0.5,
 				stream: true,
 				reasoning_effort: 'low',
-			}
+			},
+			{ headers: openCodeGoHeaders(conversationId) }
 		),
 		(e) => `Title generation API call failed: ${e}`
 	);
@@ -411,6 +413,7 @@ ${attachedRules.map((r) => `- ${r.name}: ${r.rule}`).join('\n')}`,
 	const openai = new OpenAI({
 		baseURL: resolveOpenCodeBaseUrl(modelId),
 		apiKey: actualKey,
+		defaultHeaders: openCodeGoHeaders(conversationId),
 	});
 
 	let content = '';
@@ -431,6 +434,7 @@ ${attachedRules.map((r) => `- ${r.name}: ${r.rule}`).join('\n')}`,
 				},
 				{
 					signal: abortSignal,
+					headers: openCodeGoHeaders(conversationId),
 				}
 			),
 			(e) => `OpenAI API call failed: ${e}`

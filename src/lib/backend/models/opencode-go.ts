@@ -9,6 +9,27 @@ const CACHE_TTL_MS = 60 * 60 * 1000;
 export const OPENCODE_GO_BASE_URL = 'https://opencode.ai/zen/go/v1';
 export const OPENCODE_ZEN_BASE_URL = 'https://opencode.ai/zen/v1';
 
+/**
+ * Client identifier sent as `User-Agent` on every OpenCode Go request.
+ * OpenCode asks clients to identify with their own user agent instead of a
+ * generic SDK name (see https://opencode.ai/docs/go/#where-can-i-use-it).
+ */
+export const OPENCODE_CLIENT_USER_AGENT = 'chat/0.0.1';
+
+/**
+ * Builds the extra headers OpenCode Go requires on chat-completion requests.
+ * `x-opencode-session` must be a stable id per conversation so OpenCode can
+ * route efficiently and optimize prompt caching — without it the gateway
+ * rejects the request with:
+ * `400 Request is missing x-opencode-session and cannot be routed efficiently`.
+ */
+export function openCodeGoHeaders(sessionId: string): Record<string, string> {
+	return {
+		'x-opencode-session': sessionId,
+		'User-Agent': OPENCODE_CLIENT_USER_AGENT
+	};
+}
+
 export function isFreeModel(modelId: string): boolean {
 	return modelId.endsWith('-free');
 }
